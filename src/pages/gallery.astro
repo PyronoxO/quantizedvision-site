@@ -4,23 +4,133 @@ import artworks from "../data/artworks.json";
 ---
 
 <SiteLayout title="Gallery | Quantized Vision">
-  <section class="space-y-6">
-    <h1 class="text-3xl font-bold text-white">Gallery</h1>
-    <p class="text-zinc-300">JSON-backed artworks for Phase 1. Replace covers in `public/img/works/`.</p>
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {artworks.map((artwork) => (
-        <article class="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          {/\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
-            <video src={artwork.cover} controls class="h-44 w-full rounded object-cover" />
-          ) : (
-            <img src={artwork.cover} alt={artwork.title} class="h-44 w-full rounded object-cover" />
-          )}
-          <h2 class="mt-3 text-lg font-semibold text-white">{artwork.title}</h2>
-          <p class="text-sm text-zinc-400">{artwork.date} • {artwork.lane}</p>
-          <p class="mt-2 text-sm text-zinc-300">{artwork.description}</p>
-          <p class="mt-3 text-xs text-zinc-400">Tools: {artwork.tools.join(", ")}</p>
-        </article>
+  <section class="space-y-5">
+    <h1 class="text-3xl font-bold text-white">Artwall</h1>
+    <p class="text-zinc-300">Masonry layout with uncropped media. Click any piece for fullscreen view.</p>
+    <div class="columns-1 gap-4 md:columns-2 xl:columns-3">
+      {artworks.map((artwork, index) => (
+        <figure class="group relative mb-4 break-inside-avoid overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+          <button
+            class="block w-full text-left"
+            data-lightbox-item
+            data-index={String(index)}
+            data-src={artwork.cover}
+            data-title={artwork.title}
+            data-lane={artwork.lane}
+          >
+            {/\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
+              <video
+                src={artwork.cover}
+                class="w-full align-middle"
+                muted
+                playsinline
+                preload="metadata"
+                controlslist="nodownload"
+              />
+            ) : (
+              <img src={artwork.cover} alt={artwork.title} class="w-full align-middle" loading="lazy" />
+            )}
+            <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/70 to-transparent p-4 opacity-0 transition duration-300 group-hover:opacity-100">
+              <p class="text-lg font-semibold text-white">{artwork.title}</p>
+              <p class="text-sm text-zinc-300">{artwork.lane}</p>
+            </figcaption>
+          </button>
+        </figure>
       ))}
     </div>
   </section>
+
+  <dialog id="lightbox" class="backdrop:bg-black/90 bg-transparent p-0 text-white">
+    <div class="relative mx-auto flex h-[95vh] w-[95vw] items-center justify-center">
+      <button
+        id="lightbox-close"
+        class="absolute right-2 top-2 z-10 rounded bg-zinc-900/90 px-3 py-1 text-sm hover:bg-zinc-700"
+      >
+        Close
+      </button>
+      <button
+        id="lightbox-prev"
+        class="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded bg-zinc-900/90 px-3 py-2 text-xl hover:bg-zinc-700"
+      >
+        ‹
+      </button>
+      <button
+        id="lightbox-next"
+        class="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded bg-zinc-900/90 px-3 py-2 text-xl hover:bg-zinc-700"
+      >
+        ›
+      </button>
+      <div class="max-h-[90vh] max-w-[90vw]">
+        <img id="lightbox-image" alt="" class="hidden max-h-[82vh] max-w-[90vw] object-contain" />
+        <video id="lightbox-video" controls class="hidden max-h-[82vh] max-w-[90vw] object-contain"></video>
+        <div class="mt-3 rounded bg-zinc-900/80 px-3 py-2">
+          <p id="lightbox-title" class="font-semibold"></p>
+          <p id="lightbox-lane" class="text-sm text-zinc-300"></p>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script is:inline>
+    const items = Array.from(document.querySelectorAll("[data-lightbox-item]"));
+    const dialog = document.getElementById("lightbox");
+    const image = document.getElementById("lightbox-image");
+    const video = document.getElementById("lightbox-video");
+    const title = document.getElementById("lightbox-title");
+    const lane = document.getElementById("lightbox-lane");
+    const closeBtn = document.getElementById("lightbox-close");
+    const prevBtn = document.getElementById("lightbox-prev");
+    const nextBtn = document.getElementById("lightbox-next");
+    let currentIndex = 0;
+
+    const renderItem = (index) => {
+      currentIndex = (index + items.length) % items.length;
+      const current = items[currentIndex];
+      const src = current.dataset.src || "";
+      const isVideo = /\.(mov|mp4|webm)$/i.test(src);
+      title.textContent = current.dataset.title || "";
+      lane.textContent = current.dataset.lane || "";
+
+      if (isVideo) {
+        image.classList.add("hidden");
+        video.classList.remove("hidden");
+        video.src = src;
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+        video.src = "";
+        video.classList.add("hidden");
+        image.classList.remove("hidden");
+        image.src = src;
+        image.alt = current.dataset.title || "";
+      }
+    };
+
+    items.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        renderItem(index);
+        dialog.showModal();
+      });
+    });
+
+    closeBtn.addEventListener("click", () => dialog.close());
+    prevBtn.addEventListener("click", () => renderItem(currentIndex - 1));
+    nextBtn.addEventListener("click", () => renderItem(currentIndex + 1));
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (!dialog.open) return;
+      if (event.key === "Escape") dialog.close();
+      if (event.key === "ArrowLeft") renderItem(currentIndex - 1);
+      if (event.key === "ArrowRight") renderItem(currentIndex + 1);
+    });
+
+    dialog.addEventListener("close", () => {
+      video.pause();
+      video.src = "";
+    });
+  </script>
 </SiteLayout>
