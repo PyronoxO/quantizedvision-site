@@ -1,15 +1,31 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
+import { getNotes } from "../lib/content";
+
+const notes = await getNotes();
 ---
 
 <SiteLayout title="Notes | Quantized Vision">
   <section class="space-y-4">
     <h1 class="text-3xl font-bold text-white">Notes</h1>
-    <p class="max-w-3xl text-zinc-300">
-      Short production notes, pipeline findings, and creative experiments.
-    </p>
-    <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-zinc-300">
-      Phase 1 keeps this static. Phase 2 can move notes into Sanity.
-    </div>
+    <p class="max-w-3xl text-zinc-300">Short production notes, pipeline findings, and creative experiments.</p>
+    {
+      notes.length === 0 ? (
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-zinc-300">
+          No notes published yet. Add `note` documents in Sanity Studio.
+        </div>
+      ) : (
+        <div class="space-y-3">
+          {notes.map((note) => (
+            <article class="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+              <h2 class="text-lg font-semibold text-white">{note.title}</h2>
+              <p class="text-sm text-zinc-400">{note.date}</p>
+              <p class="text-zinc-300">{note.excerpt}</p>
+              <p class="text-xs text-zinc-400">Tags: {note.tags.join(", ")}</p>
+            </article>
+          ))}
+        </div>
+      )
+    }
   </section>
 </SiteLayout>

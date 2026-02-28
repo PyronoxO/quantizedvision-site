@@ -6,10 +6,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "media:prepare": "node scripts/prepare-media.mjs",
+    "studio:dev": "npm --prefix ./studio run dev",
+    "studio:build": "npm --prefix ./studio run build"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
+    "@sanity/client": "^7.16.0",
+    "@sanity/image-url": "^2.0.3",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
     "sharp": "^0.34.3",

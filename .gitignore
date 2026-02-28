@@ -5,6 +5,7 @@ dist/
 
 # dependencies
 node_modules/
+studio/.sanity/
 
 # logs
 npm-debug.log*

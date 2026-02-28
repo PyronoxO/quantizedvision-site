@@ -50,8 +50,22 @@ All commands are run from the root of the project, from a terminal:
 | `npm run dev`             | Starts local dev server at `localhost:4321`      |
 | `npm run build`           | Build your production site to `./dist/`          |
 | `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run media:prepare`   | Watermark media from `public/img/raw` to `public/img/works` |
+| `npm run studio:dev`      | Run Sanity Studio locally (`http://127.0.0.1:3333`) |
+| `npm run studio:build`    | Build Sanity Studio                               |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
+
+## Watermark Pipeline
+
+1. Keep your watermark logo at `public/img/works/logo-watermark.png`.
+2. Drop new source files into `public/img/raw/`.
+3. Run `npm run media:prepare`.
+4. Use the generated outputs from `public/img/works/` in `src/data/artworks.json`.
+
+## Sanity CMS
+
+Setup steps are documented in `docs/sanity-setup.md`.
 
 ## 👀 Want to learn more?
 
