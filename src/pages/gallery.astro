@@ -1,0 +1,22 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import artworks from "../data/artworks.json";
+---
+
+<SiteLayout title="Gallery | Quantized Vision">
+  <section class="space-y-6">
+    <h1 class="text-3xl font-bold text-white">Gallery</h1>
+    <p class="text-zinc-300">JSON-backed artworks for Phase 1. Replace covers in `public/img/works/`.</p>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {artworks.map((artwork) => (
+        <article class="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <img src={artwork.cover} alt={artwork.title} class="h-44 w-full rounded object-cover" />
+          <h2 class="mt-3 text-lg font-semibold text-white">{artwork.title}</h2>
+          <p class="text-sm text-zinc-400">{artwork.date} • {artwork.lane}</p>
+          <p class="mt-2 text-sm text-zinc-300">{artwork.description}</p>
+          <p class="mt-3 text-xs text-zinc-400">Tools: {artwork.tools.join(", ")}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+</SiteLayout>

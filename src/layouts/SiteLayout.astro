@@ -1,0 +1,59 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Quantized Vision digital portfolio." } = Astro.props;
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/projects", label: "Projects" },
+  { href: "/notes", label: "Notes" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-zinc-950 text-zinc-100">
+    <header class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
+      <nav class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+        <a href="/" class="text-sm font-semibold tracking-[0.2em] text-teal-300">QUANTIZED VISION</a>
+        <div class="flex flex-wrap gap-2 text-sm">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                "rounded px-3 py-1.5 transition",
+                currentPath === item.href
+                  ? "bg-teal-300 text-zinc-900"
+                  : "text-zinc-300 hover:bg-zinc-800 hover:text-white",
+              ]}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+    </header>
+    <main class="mx-auto w-full max-w-6xl px-4 py-10">
+      <slot />
+    </main>
+    <footer class="border-t border-zinc-800 px-4 py-8 text-center text-sm text-zinc-400">
+      <p>© {new Date().getFullYear()} Quantized Vision</p>
+    </footer>
+  </body>
+</html>

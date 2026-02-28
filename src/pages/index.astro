@@ -1,49 +1,28 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import SiteLayout from "../layouts/SiteLayout.astro";
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<SiteLayout title="Quantized Vision">
+  <section class="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+    <div class="space-y-5">
+      <p class="text-sm uppercase tracking-[0.3em] text-teal-300">Visual Lab</p>
+      <h1 class="text-4xl font-bold leading-tight text-white md:text-6xl">Quantized Vision</h1>
+      <p class="max-w-2xl text-zinc-300">
+        Experimental visual work across AI-assisted lanes: visual-heavy, mad-hatter, and hybrid pipelines.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a href="/gallery" class="rounded bg-teal-300 px-4 py-2 font-semibold text-zinc-900">Open Gallery</a>
+        <a href="/projects" class="rounded border border-zinc-700 px-4 py-2 text-zinc-200">View Projects</a>
+      </div>
+    </div>
+    <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+      <h2 class="text-xl font-semibold text-white">Phase 1 Stack</h2>
+      <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+        <li>Astro static build</li>
+        <li>Tailwind styling</li>
+        <li>JSON-driven content</li>
+        <li>Cloudflare Pages deploy</li>
+      </ul>
+    </div>
+  </section>
+</SiteLayout>
