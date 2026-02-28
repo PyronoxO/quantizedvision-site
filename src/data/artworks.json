@@ -1,32 +1,42 @@
 [
   {
-    "title": "Neon Cathedral",
-    "slug": "neon-cathedral",
+    "title": "IMG 6802",
+    "slug": "img-6802",
     "date": "2026-02-28",
     "lane": "visual-heavy",
     "tools": ["kling", "midjourney", "pika"],
-    "tags": ["cyber", "horror", "romance"],
-    "cover": "/img/works/neon-cathedral.jpg",
-    "description": "A chromed city altar dissolving into static and rain."
+    "tags": ["photography", "visual", "portfolio"],
+    "cover": "/img/works/IMG_6802.JPG",
+    "description": "Original portfolio upload."
   },
   {
-    "title": "Glass Carnival",
-    "slug": "glass-carnival",
+    "title": "IMG 6840",
+    "slug": "img-6840",
     "date": "2026-02-28",
     "lane": "mad-hatter",
     "tools": ["kling", "runway", "ableton"],
-    "tags": ["surreal", "dreamcore", "motion"],
-    "cover": "/img/works/glass-carnival.jpg",
-    "description": "A maximal collage of masks, mirrors, and unstable light."
+    "tags": ["photography", "visual", "portfolio"],
+    "cover": "/img/works/IMG_6840.JPG",
+    "description": "Original portfolio upload."
   },
   {
-    "title": "Borrowed Horizon",
-    "slug": "borrowed-horizon",
+    "title": "IMG 6895",
+    "slug": "img-6895",
     "date": "2026-02-28",
     "lane": "hybrid",
     "tools": ["midjourney", "pika", "resolve"],
-    "tags": ["cinematic", "romance", "noir"],
-    "cover": "/img/works/borrowed-horizon.jpg",
-    "description": "Hybrid still-to-motion sequence built from noir sketches."
+    "tags": ["photography", "visual", "portfolio"],
+    "cover": "/img/works/IMG_6895.JPG",
+    "description": "Original portfolio upload."
+  },
+  {
+    "title": "Motion Clip",
+    "slug": "motion-clip",
+    "date": "2026-02-28",
+    "lane": "hybrid",
+    "tools": ["camera", "edit"],
+    "tags": ["video", "motion", "portfolio"],
+    "cover": "/img/works/eb3ba97121f6404e87afe16e79222392.MOV",
+    "description": "Original portfolio video upload."
   }
 ]

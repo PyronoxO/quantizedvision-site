@@ -10,7 +10,11 @@ import artworks from "../data/artworks.json";
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {artworks.map((artwork) => (
         <article class="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <img src={artwork.cover} alt={artwork.title} class="h-44 w-full rounded object-cover" />
+          {/\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
+            <video src={artwork.cover} controls class="h-44 w-full rounded object-cover" />
+          ) : (
+            <img src={artwork.cover} alt={artwork.title} class="h-44 w-full rounded object-cover" />
+          )}
           <h2 class="mt-3 text-lg font-semibold text-white">{artwork.title}</h2>
           <p class="text-sm text-zinc-400">{artwork.date} • {artwork.lane}</p>
           <p class="mt-2 text-sm text-zinc-300">{artwork.description}</p>
