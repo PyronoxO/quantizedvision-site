@@ -1,15 +1,37 @@
 import { createClient } from "@sanity/client";
 import { createImageUrlBuilder } from "@sanity/image-url";
 
-const projectId = import.meta.env.SANITY_PROJECT_ID;
-const dataset = import.meta.env.SANITY_DATASET;
-const apiVersion = import.meta.env.SANITY_API_VERSION || "2024-01-01";
-const token = import.meta.env.SANITY_API_READ_TOKEN;
+type RuntimeEnv = Record<string, unknown> | undefined;
 
-export const isSanityConfigured = Boolean(projectId && dataset);
+let runtimeEnv: RuntimeEnv;
+
+function readEnv(key: string): string {
+  const runtimeValue = runtimeEnv?.[key];
+  if (typeof runtimeValue === "string" && runtimeValue.trim()) return runtimeValue.trim();
+  const buildValue = (import.meta.env as Record<string, string | undefined>)[key];
+  if (typeof buildValue === "string" && buildValue.trim()) return buildValue.trim();
+  return "";
+}
+
+function getSanityConfig() {
+  const projectId = readEnv("SANITY_PROJECT_ID");
+  const dataset = readEnv("SANITY_DATASET");
+  const apiVersion = readEnv("SANITY_API_VERSION") || "2024-01-01";
+  const token = readEnv("SANITY_API_READ_TOKEN");
+  return { projectId, dataset, apiVersion, token, isConfigured: Boolean(projectId && dataset) };
+}
+
+export function setSanityRuntimeEnv(env: RuntimeEnv) {
+  runtimeEnv = env;
+}
+
+export function isSanityConfigured() {
+  return getSanityConfig().isConfigured;
+}
 
 export function getSanityClient(preview = false) {
-  if (!isSanityConfigured) return null;
+  const { projectId, dataset, apiVersion, token, isConfigured } = getSanityConfig();
+  if (!isConfigured) return null;
   return createClient({
     projectId,
     dataset,
@@ -21,11 +43,10 @@ export function getSanityClient(preview = false) {
   });
 }
 
-export const sanityClient = getSanityClient(false);
-
-const builder = sanityClient ? createImageUrlBuilder(sanityClient) : null;
-
 export function sanityImageUrl(source: unknown): string | null {
-  if (!builder || !source) return null;
+  if (!source) return null;
+  const client = getSanityClient(false);
+  if (!client) return null;
+  const builder = createImageUrlBuilder(client);
   return builder.image(source).auto("format").fit("max").url();
 }

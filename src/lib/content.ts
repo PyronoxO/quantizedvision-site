@@ -144,7 +144,7 @@ function mapPost(item: SanityPost): Post {
 
 export async function getArtworks(options: FetchOptions = {}): Promise<Artwork[]> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return artworksJson as Artwork[];
   }
 
@@ -158,7 +158,7 @@ export async function getArtworks(options: FetchOptions = {}): Promise<Artwork[]
 
 export async function getProjects(options: FetchOptions = {}): Promise<Project[]> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return [];
   }
 
@@ -172,7 +172,7 @@ export async function getProjects(options: FetchOptions = {}): Promise<Project[]
 
 export async function getPosts(options: FetchOptions = {}): Promise<Post[]> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return [];
   }
 
@@ -189,7 +189,7 @@ export async function getPosts(options: FetchOptions = {}): Promise<Post[]> {
 
 export async function getHomePageConfig(options: FetchOptions = {}): Promise<HomePageConfig | null> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return null;
   }
 
@@ -208,7 +208,7 @@ export async function getSiteDesignSettings(options: FetchOptions = {}): Promise
 
 export async function getSiteSettings(options: FetchOptions = {}): Promise<SiteSettings | null> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return null;
   }
 
@@ -241,7 +241,7 @@ function matchesModuleScope(module: GlobalModuleConfig, pathname: string): boole
 
 async function getPagesAndGlobalModules(options: FetchOptions = {}): Promise<{ pages: PageConfig[]; globalModules: GlobalModuleConfig[] }> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return { pages: [], globalModules: [] };
   }
 
@@ -303,7 +303,7 @@ export async function getCmsPageByPath(pathname: string, options: FetchOptions =
 
 export async function getCmsPageSlugs(options: FetchOptions = {}): Promise<{ slug: string; isHome?: boolean; is404?: boolean }[]> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return [];
   }
 
@@ -326,7 +326,7 @@ export async function get404Page(options: FetchOptions = {}): Promise<PageConfig
 
 export async function getRedirectRules(options: FetchOptions = {}): Promise<RedirectRule[]> {
   const client = getSanityClient(Boolean(options.preview));
-  if (!isSanityConfigured || !client) {
+  if (!isSanityConfigured() || !client) {
     return [];
   }
   try {

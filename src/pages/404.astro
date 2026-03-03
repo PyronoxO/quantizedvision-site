@@ -2,8 +2,10 @@
 import PageSections from "../components/PageSections.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { get404Page, getArtworks, getPosts, getProjects } from "../lib/content";
+import { setSanityRuntimeEnv } from "../lib/sanity";
 import type { HomeThemeVariant } from "../types/content";
 
+setSanityRuntimeEnv((Astro.locals as any)?.runtime?.env);
 const [page404, artworks, posts, projects] = await Promise.all([get404Page(), getArtworks(), getPosts(), getProjects()]);
 
 const themePresets: Record<HomeThemeVariant, { section: string }> = {

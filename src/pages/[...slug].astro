@@ -2,8 +2,10 @@
 import PageSections from "../components/PageSections.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { getArtworks, getCmsPageByPath, getPosts, getProjects, getRedirectRules } from "../lib/content";
+import { setSanityRuntimeEnv } from "../lib/sanity";
 import type { HomeThemeVariant, PageConfig, RedirectRule } from "../types/content";
 
+setSanityRuntimeEnv((Astro.locals as any)?.runtime?.env);
 const preview = Astro.url.searchParams.get("preview") === "1";
 const rawSlug = (Astro.params.slug || "").replace(/^\/+|\/+$/g, "");
 const pathname = `/${rawSlug}`;
