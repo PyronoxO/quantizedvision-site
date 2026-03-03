@@ -11,6 +11,10 @@ export default defineConfig({
   site: 'https://example.com',
   output: 'server',
   adapter: cloudflare(),
+  session: {
+    // Prevent Cloudflare adapter from forcing a KV SESSION binding we do not use.
+    driver: 'memory',
+  },
   integrations: [sitemap()],
 
   vite: {
