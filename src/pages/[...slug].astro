@@ -1,29 +1,21 @@
 ---
 import PageSections from "../components/PageSections.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
-import { getAllCmsPages, getArtworks, getPosts, getProjects, getRedirectRules } from "../lib/content";
+import { getArtworks, getCmsPageByPath, getPosts, getProjects, getRedirectRules } from "../lib/content";
 import type { HomeThemeVariant, PageConfig, RedirectRule } from "../types/content";
 
-export async function getStaticPaths() {
-  const [pages, redirects] = await Promise.all([getAllCmsPages(), getRedirectRules()]);
-  const pagePaths = pages
-    .filter((page) => !page.isHome && !page.is404 && page.slug !== "home" && page.slug !== "404")
-    .map((page) => ({
-      params: { slug: page.slug.replace(/^\/+|\/+$/g, "") },
-      props: { page },
-    }));
-  const redirectPaths = redirects
-    .filter((rule) => rule.from && rule.to)
-    .map((rule) => ({
-      params: { slug: rule.from.replace(/^\/+|\/+$/g, "") },
-      props: { redirect: rule },
-    }));
-  return [...pagePaths, ...redirectPaths];
-}
-
-const { page, redirect } = Astro.props as { page?: PageConfig; redirect?: RedirectRule };
+const preview = Astro.url.searchParams.get("preview") === "1";
+const rawSlug = (Astro.params.slug || "").replace(/^\/+|\/+$/g, "");
+const pathname = `/${rawSlug}`;
+const [page, redirects] = await Promise.all([getCmsPageByPath(pathname, { preview }), getRedirectRules({ preview })]);
+const redirect = redirects.find((rule) => `/${(rule.from || "").replace(/^\/+|\/+$/g, "")}` === pathname) as RedirectRule | undefined;
 const isRedirect = Boolean(redirect?.to);
-const [artworks, posts, projects] = isRedirect ? [[], [], []] : await Promise.all([getArtworks(), getPosts(), getProjects()]);
+const [artworks, posts, projects] = isRedirect || !page
+  ? [[], [], []]
+  : await Promise.all([getArtworks({ preview }), getPosts({ preview }), getProjects({ preview })]);
+if (!isRedirect && !page) {
+  Astro.response.status = 404;
+}
 
 const themePresets: Record<HomeThemeVariant, { section: string }> = {
   "crimson-ice": { section: "border-[#202d47] bg-[#0a1224]" },
@@ -64,6 +56,14 @@ const showPageHero = hasHeroContent || pageSections.length === 0;
     </section>
   ) : (
   <section class="dynamic-template space-y-8">
+    {!page ? (
+      <article class="rounded-2xl border border-[#202d47] bg-[#0a1224] p-6 md:p-9">
+        <h1 class="font-black uppercase tracking-[0.03em]">Page Not Found</h1>
+        <p class="mt-3 qv-muted">This page does not exist.</p>
+        <a href="/" class="qv-btn-accent mt-6 inline-flex rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">Back Home</a>
+      </article>
+    ) : (
+      <>
     {showPageHero ? (
       <article class="qv-page-hero rounded-2xl p-6 md:p-9 md:py-12">
         {page.hero?.eyebrow ? (
@@ -89,6 +89,8 @@ const showPageHero = hasHeroContent || pageSections.length === 0;
     ) : null}
 
     <PageSections sections={pageSections} artworks={artworks} posts={posts} projects={projects} themeSectionClass={theme.section} />
+      </>
+    )}
   </section>
   )}
 </SiteLayout>

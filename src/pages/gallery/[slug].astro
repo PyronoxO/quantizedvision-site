@@ -3,40 +3,36 @@ import SiteLayout from "../../layouts/SiteLayout.astro";
 import { getArtworks } from "../../lib/content";
 import type { Artwork } from "../../types/content";
 
-export async function getStaticPaths() {
-  const artworks = await getArtworks();
-  return artworks
-    .filter((artwork) => (artwork.galleryImages?.length ?? 0) > 0)
-    .map((artwork) => ({
-      params: { slug: artwork.slug },
-      props: { artwork },
-    }));
+const preview = Astro.url.searchParams.get("preview") === "1";
+const slug = Astro.params.slug || "";
+const artworks = await getArtworks({ preview });
+const artwork = artworks.find((item) => item.slug === slug) as Artwork | undefined;
+const images = (artwork?.galleryImages ?? []).filter(Boolean);
+if (!artwork || images.length === 0) {
+  Astro.response.status = 404;
 }
-
-const { artwork } = Astro.props as { artwork: Artwork };
-const images = (artwork.galleryImages ?? []).filter(Boolean);
 ---
 
-<SiteLayout title={`${artwork.title} | Sub Gallery`}>
+<SiteLayout title={`${artwork?.title || "Sub Gallery"} | Sub Gallery`}>
   <section class="dynamic-template space-y-5">
-    <a href="/gallery" class="qv-chip inline-flex items-center rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.11em]">
-      Back to Gallery
-    </a>
-    <div class="qv-panel space-y-2 rounded-2xl p-5 md:p-7">
-      <h1 class="font-black uppercase tracking-[0.05em] qv-text">{artwork.title}</h1>
-      <p class="text-xs uppercase tracking-[0.11em] qv-muted">
-        {artwork.lane}
-        {artwork.collection ? ` • ${artwork.collection}` : ""}
-      </p>
-      <p class="qv-muted">Sub gallery view. Click any image to open lightbox and cycle through the full set.</p>
-    </div>
-
-    {
-      images.length === 0 ? (
-        <div class="qv-card rounded-xl p-5 qv-muted">
-          No media found in this sub gallery.
+    {!artwork || images.length === 0 ? (
+      <div class="qv-card rounded-xl p-5 qv-muted">
+        Sub gallery not found.
+      </div>
+    ) : (
+      <>
+        <a href="/gallery" class="qv-chip inline-flex items-center rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.11em]">
+          Back to Gallery
+        </a>
+        <div class="qv-panel space-y-2 rounded-2xl p-5 md:p-7">
+          <h1 class="font-black uppercase tracking-[0.05em] qv-text">{artwork.title}</h1>
+          <p class="text-xs uppercase tracking-[0.11em] qv-muted">
+            {artwork.lane}
+            {artwork.collection ? ` • ${artwork.collection}` : ""}
+          </p>
+          <p class="qv-muted">Sub gallery view. Click any image to open lightbox and cycle through the full set.</p>
         </div>
-      ) : (
+
         <div class="columns-1 gap-4 md:columns-2 xl:columns-3">
           {images.map((src, index) => (
             <button
@@ -50,29 +46,31 @@ const images = (artwork.galleryImages ?? []).filter(Boolean);
             </button>
           ))}
         </div>
-      )
-    }
+      </>
+    )}
   </section>
 
-  <dialog id="sub-lightbox" class="backdrop:bg-black/90 bg-transparent p-0 qv-text">
-    <div class="relative mx-auto flex h-[95vh] w-[95vw] items-center justify-center">
-      <button id="sub-close" class="qv-overlay-btn absolute right-2 top-2 z-10 rounded px-3 py-1 text-sm">Close</button>
-      <button id="sub-prev" class="qv-overlay-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">‹</button>
-      <button id="sub-next" class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">›</button>
-      <div class="max-h-[90vh] max-w-[90vw]">
-        <div class="relative">
-          <img id="sub-image" alt={artwork.title} class="max-h-[82vh] max-w-[90vw] object-contain select-none" draggable="false" />
-          <img src="/img/works/logo-watermark.png" alt="" aria-hidden="true" class="pointer-events-none absolute bottom-3 right-3 w-36 opacity-45" />
-        </div>
-        <div class="qv-card mt-3 rounded px-3 py-2">
-          <p class="font-semibold">{artwork.title}</p>
-          <p id="sub-count" class="text-xs uppercase tracking-[0.1em] qv-muted"></p>
+  {artwork && images.length > 0 ? (
+    <dialog id="sub-lightbox" class="backdrop:bg-black/90 bg-transparent p-0 qv-text">
+      <div class="relative mx-auto flex h-[95vh] w-[95vw] items-center justify-center">
+        <button id="sub-close" class="qv-overlay-btn absolute right-2 top-2 z-10 rounded px-3 py-1 text-sm">Close</button>
+        <button id="sub-prev" class="qv-overlay-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">‹</button>
+        <button id="sub-next" class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">›</button>
+        <div class="max-h-[90vh] max-w-[90vw]">
+          <div class="relative">
+            <img id="sub-image" alt={artwork.title} class="max-h-[82vh] max-w-[90vw] object-contain select-none" draggable="false" />
+            <img src="/img/works/logo-watermark.png" alt="" aria-hidden="true" class="pointer-events-none absolute bottom-3 right-3 w-36 opacity-45" />
+          </div>
+          <div class="qv-card mt-3 rounded px-3 py-2">
+            <p class="font-semibold">{artwork.title}</p>
+            <p id="sub-count" class="text-xs uppercase tracking-[0.1em] qv-muted"></p>
+          </div>
         </div>
       </div>
-    </div>
-  </dialog>
+    </dialog>
+  ) : null}
 
-  <script is:inline>
+  {artwork && images.length > 0 ? <script is:inline>
     const items = Array.from(document.querySelectorAll("[data-sub-item]"));
     const dialog = document.getElementById("sub-lightbox");
     const image = document.getElementById("sub-image");
@@ -110,5 +108,5 @@ const images = (artwork.galleryImages ?? []).filter(Boolean);
       if (event.key === "ArrowLeft") render(currentIndex - 1);
       if (event.key === "ArrowRight") render(currentIndex + 1);
     });
-  </script>
+  </script> : null}
 </SiteLayout>
