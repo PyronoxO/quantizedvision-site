@@ -1,28 +1,234 @@
 ---
+import PageSections from "../components/PageSections.astro";
 import SiteLayout from "../layouts/SiteLayout.astro";
+import { getArtworks, getCmsPageByPath, getHomePageConfig, getPosts, getProjects } from "../lib/content";
+import type { HomePageConfig, PageConfig } from "../types/content";
+
+const preview = Astro.url.searchParams.get("preview") === "1";
+const [cmsHome, legacyHome, artworks, posts, projects] = await Promise.all([
+  getCmsPageByPath("/", { preview }),
+  getHomePageConfig({ preview }),
+  getArtworks({ preview }),
+  getPosts({ preview }),
+  getProjects({ preview }),
+]);
+
+const fallbackConfig: HomePageConfig = {
+  themeVariant: "crimson-ice",
+  hero: {
+    eyebrow: "Setup Required",
+    title: "Create Your Homepage In Studio",
+    body: "No Home page document exists yet. Go to Studio > Pages > All Pages, create a Page, set slug to home and enable 'Set as Homepage'.",
+    primaryLabel: "Open Studio",
+    primaryUrl: "/studio",
+    secondaryLabel: "View Gallery",
+    secondaryUrl: "/gallery",
+  },
+  sections: [],
+};
+
+const legacyAsPage: PageConfig | null = legacyHome
+  ? {
+      title: "Home",
+      slug: "home",
+      isHome: true,
+      themeVariant: legacyHome.themeVariant,
+      hero: legacyHome.hero,
+      sections: legacyHome.sections,
+    }
+  : null;
+
+const page = cmsHome || legacyAsPage || { ...fallbackConfig, title: "Home", slug: "home", isHome: true };
+const pageSections = Array.isArray(page.sections) ? page.sections.filter(Boolean) : [];
+const pageTitle = page.seo?.metaTitle || "Quantized Vision";
+const pageDescription = page.seo?.metaDescription || page.hero?.body || "Quantized Vision digital portfolio.";
+const themeSectionClass = "border-[color:var(--qv-border)] bg-[color:var(--qv-surface)]";
+const heroTitle = (page.hero.title || "Quantized Vision").trim();
+const heroTitleWords = heroTitle.split(/\s+/).filter(Boolean);
+const heroTitleLine1 = heroTitleWords.slice(0, Math.max(1, Math.ceil(heroTitleWords.length / 2))).join(" ");
+const heroTitleLine2 = heroTitleWords.slice(Math.max(1, Math.ceil(heroTitleWords.length / 2))).join(" ");
+const heroBody = page.hero.body?.trim() || "Bold AI artistry meets computational vision.";
+const primaryLabel = page.hero.primaryLabel?.trim() || "Enter the Gallery";
+const primaryUrl = page.hero.primaryUrl?.trim() || "/gallery";
+const heroMediaFromCms = (page.hero.mediaItems || [])
+  .map((item) => ({ src: item.imageUrl?.trim() || "", alt: item.alt?.trim() || "Featured visual" }))
+  .filter((item) => Boolean(item.src));
+const heroFallback = artworks.find((item) => item.cover)?.cover || "https://images.unsplash.com/photo-1485740112426-0c2549fa8c86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1400";
+const heroMedia = heroMediaFromCms.length ? heroMediaFromCms : [{ src: heroFallback, alt: "Featured visual" }];
+const heroSliderEnabled = Boolean(page.hero.enableSlider ?? true) && heroMedia.length > 1;
+const heroSliderAutoplay = heroSliderEnabled && Boolean(page.hero.autoplay ?? true);
+const heroSliderInterval = Math.min(15000, Math.max(1200, Number(page.hero.autoplayMs) || 4500));
+const heroTransitionMs = Math.min(3000, Math.max(150, Number(page.hero.transitionMs) || 850));
+const heroShowArrows = heroSliderEnabled && Boolean(page.hero.showArrows ?? true);
+const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
 ---
 
-<SiteLayout title="Quantized Vision">
-  <section class="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-    <div class="space-y-5">
-      <p class="text-sm uppercase tracking-[0.3em] text-teal-300">Visual Lab</p>
-      <h1 class="text-4xl font-bold leading-tight text-white md:text-6xl">Quantized Vision</h1>
-      <p class="max-w-2xl text-zinc-300">
-        Experimental visual work across AI-assisted lanes: visual-heavy, mad-hatter, and hybrid pipelines.
-      </p>
-      <div class="flex flex-wrap gap-3">
-        <a href="/gallery" class="rounded bg-teal-300 px-4 py-2 font-semibold text-zinc-900">Open Gallery</a>
-        <a href="/projects" class="rounded border border-zinc-700 px-4 py-2 text-zinc-200">View Projects</a>
+<SiteLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonicalUrl={page.seo?.canonicalUrl}
+  ogTitle={page.seo?.ogTitle}
+  ogDescription={page.seo?.ogDescription}
+  ogImage={page.seo?.ogImage}
+  noIndex={Boolean(page.seo?.noIndex)}
+>
+  <section class="dynamic-template space-y-8">
+    {preview ? (
+      <div class="rounded-xl border border-[#3b4f77] bg-[#111e3a] px-4 py-2 text-xs uppercase tracking-[0.1em] qv-text">
+        Preview Mode (drafts): enabled from URL `?preview=1`
       </div>
-    </div>
-    <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 class="text-xl font-semibold text-white">Phase 1 Stack</h2>
-      <ul class="mt-4 space-y-2 text-sm text-zinc-300">
-        <li>Astro static build</li>
-        <li>Tailwind styling</li>
-        <li>JSON-driven content</li>
-        <li>Cloudflare Pages deploy</li>
-      </ul>
-    </div>
+    ) : null}
+
+    <article class="relative flex min-h-[calc(100vh-5rem)] w-full items-center overflow-hidden">
+      <div class="mx-auto grid min-h-[90vh] w-full max-w-[1440px] items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:gap-20 lg:px-12">
+        <div class="space-y-10">
+          <div class="space-y-6">
+            <h1 class="max-w-xl font-bold leading-[0.95] tracking-[-0.02em]">
+              <span class="qv-title-gradient">
+                {heroTitleLine1}
+                {heroTitleLine2 ? <><br />{heroTitleLine2}</> : null}
+              </span>
+            </h1>
+            <p class="max-w-xl qv-hero-body qv-muted">{heroBody}</p>
+          </div>
+          <a href={primaryUrl} class="qv-btn-accent inline-flex items-center gap-3 rounded-xl px-10 py-5 text-[1.95rem] font-bold leading-none">
+            {primaryLabel} <span aria-hidden="true">→</span>
+          </a>
+          {page.hero.secondaryLabel && page.hero.secondaryUrl ? (
+            <a href={page.hero.secondaryUrl} class="qv-btn-soft inline-flex rounded-xl px-8 py-4 text-xl font-bold">
+              {page.hero.secondaryLabel}
+            </a>
+          ) : null}
+        </div>
+        <div class="relative">
+          <div class="absolute inset-0 scale-110 bg-[#00d9ff]/20 blur-[120px]"></div>
+          <div class="absolute inset-0 scale-105 bg-[#ff6b35]/15 blur-[100px] [transform:translateX(20%)]"></div>
+          <div
+            class="relative aspect-[4/5] overflow-hidden rounded-2xl border-2 border-[#00d9ff]/30 bg-[#16213e] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_50px_rgba(0,217,255,0.2)]"
+            data-hero-slider
+            data-slider-enabled={heroSliderEnabled ? "true" : "false"}
+            data-slider-autoplay={heroSliderAutoplay ? "true" : "false"}
+            data-slider-interval={String(heroSliderInterval)}
+            data-slider-transition={String(heroTransitionMs)}
+          >
+            {heroMedia.map((item, index) => (
+              <img
+                src={item.src}
+                alt={item.alt}
+                class:list={[
+                  "absolute inset-0 h-full w-full object-cover transition-opacity ease-in-out",
+                  index === 0 ? "opacity-100" : "opacity-0",
+                ]}
+                style={`transition-duration:${heroTransitionMs}ms;`}
+                loading={index === 0 ? "eager" : "lazy"}
+                data-hero-slide
+              />
+            ))}
+            <div class="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.4)]"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d1a]/60 via-transparent to-transparent"></div>
+            <div class="absolute left-0 top-0 h-20 w-20 rounded-tl-2xl border-l-2 border-t-2 border-[#00d9ff]"></div>
+            <div class="absolute bottom-0 right-0 h-20 w-20 rounded-br-2xl border-b-2 border-r-2 border-[#ff6b35]"></div>
+            {heroSliderEnabled ? (
+              <>
+                {heroShowArrows ? (
+                  <>
+                    <button type="button" class="qv-overlay-btn absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded px-3 py-2 text-xl" aria-label="Previous slide" data-hero-prev>‹</button>
+                    <button type="button" class="qv-overlay-btn absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded px-3 py-2 text-xl" aria-label="Next slide" data-hero-next>›</button>
+                  </>
+                ) : null}
+                {heroShowDots ? (
+                  <div class="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+                    {heroMedia.map((_, index) => (
+                      <button
+                        type="button"
+                        class:list={[
+                          "h-2.5 w-2.5 rounded-full border border-white/50 transition-all",
+                          index === 0 ? "bg-white/90" : "bg-white/30",
+                        ]}
+                        aria-label={`Go to slide ${index + 1}`}
+                        data-hero-dot
+                      ></button>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <PageSections sections={pageSections} artworks={artworks} posts={posts} projects={projects} themeSectionClass={themeSectionClass} />
   </section>
 </SiteLayout>
+
+<script>
+  (() => {
+    const root = document.querySelector("[data-hero-slider]");
+    if (!(root instanceof HTMLElement)) return;
+    if (root.dataset.sliderEnabled !== "true") return;
+
+    const slides = Array.from(root.querySelectorAll("[data-hero-slide]"));
+    const dots = Array.from(root.querySelectorAll("[data-hero-dot]"));
+    const prev = root.querySelector("[data-hero-prev]");
+    const next = root.querySelector("[data-hero-next]");
+    if (slides.length < 2) return;
+
+    let active = 0;
+    const intervalMs = Math.max(1200, Number(root.dataset.sliderInterval || "4500"));
+    const transitionMs = Math.max(150, Number(root.dataset.sliderTransition || "850"));
+    const autoplay = root.dataset.sliderAutoplay === "true";
+    let timer = null;
+
+    const render = (index: number) => {
+      active = (index + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        if (!(slide instanceof HTMLElement)) return;
+        slide.style.transitionDuration = `${transitionMs}ms`;
+        slide.classList.toggle("opacity-100", i === active);
+        slide.classList.toggle("opacity-0", i !== active);
+      });
+      dots.forEach((dot, i) => {
+        if (!(dot instanceof HTMLElement)) return;
+        dot.classList.toggle("bg-white/90", i === active);
+        dot.classList.toggle("bg-white/30", i !== active);
+      });
+    };
+
+    const stop = () => {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    };
+
+    const start = () => {
+      if (!autoplay) return;
+      stop();
+      timer = window.setInterval(() => render(active + 1), intervalMs);
+    };
+
+    if (prev instanceof HTMLElement) {
+      prev.addEventListener("click", () => {
+        render(active - 1);
+        start();
+      });
+    }
+    if (next instanceof HTMLElement) {
+      next.addEventListener("click", () => {
+        render(active + 1);
+        start();
+      });
+    }
+    dots.forEach((dot, i) => {
+      if (!(dot instanceof HTMLElement)) return;
+      dot.addEventListener("click", () => {
+        render(i);
+        start();
+      });
+    });
+
+    root.addEventListener("mouseenter", stop);
+    root.addEventListener("mouseleave", start);
+    render(0);
+    start();
+  })();
+</script>

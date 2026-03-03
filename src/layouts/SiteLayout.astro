@@ -1,23 +1,104 @@
 ---
 import "../styles/global.css";
+import { getSiteSettings } from "../lib/content";
+import type { HomeDesignSettings, NavigationItem } from "../types/content";
 
 interface Props {
   title: string;
   description?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  noIndex?: boolean;
 }
 
-const { title, description = "Quantized Vision digital portfolio." } = Astro.props;
+const {
+  title,
+  description = "Quantized Vision digital portfolio.",
+  canonicalUrl,
+  ogTitle,
+  ogDescription,
+  ogImage,
+  noIndex = false,
+} = Astro.props;
+const preview = Astro.url.searchParams.get("preview") === "1";
+const siteSettings = await getSiteSettings({ preview });
 
-const navItems = [
+const fontStacks: Record<string, string> = {
+  orbitron: "'Orbitron', 'Rajdhani', 'Arial Narrow', sans-serif",
+  "space-grotesk": "'Space Grotesk', 'Sora', sans-serif",
+  sora: "'Sora', 'Space Grotesk', sans-serif",
+  "bebas-neue": "'Bebas Neue', 'Oswald', 'Arial Narrow', sans-serif",
+  rajdhani: "'Rajdhani', 'Space Grotesk', sans-serif",
+  manrope: "'Manrope', 'Inter', sans-serif",
+};
+
+const fallbackDesign: HomeDesignSettings = {
+  headingFont: "manrope",
+  bodyFont: "manrope",
+  uiFont: "manrope",
+  h1Size: "clamp(4.6rem, 11vw, 9.2rem)",
+  h2Size: "clamp(1.8rem, 4.6vw, 3rem)",
+  h3Size: "clamp(1.25rem, 2.6vw, 1.9rem)",
+  h4Size: "clamp(1.1rem, 1.9vw, 1.4rem)",
+  h5Size: "clamp(0.95rem, 1.4vw, 1.2rem)",
+  h6Size: "clamp(0.88rem, 1.2vw, 1.04rem)",
+  bodySize: "1rem",
+  textColor: "#F5F5F7",
+  mutedColor: "#9CA3AF",
+  accentColor: "#00D9FF",
+  linkColor: "#CFE6FF",
+};
+
+const design = { ...fallbackDesign, ...(siteSettings?.design || {}) };
+const headingFontStack = fontStacks[design.headingFont || "orbitron"] || fontStacks.orbitron;
+const bodyFontStack = fontStacks[design.bodyFont || "space-grotesk"] || fontStacks["space-grotesk"];
+const uiFontStack = fontStacks[design.uiFont || "rajdhani"] || fontStacks.rajdhani;
+const toCssSize = (value: number | string | undefined, fallback: string) => {
+  if (typeof value === "number" && Number.isFinite(value)) return `${value}rem`;
+  if (typeof value === "string" && value.trim()) {
+    const trimmed = value.trim();
+    const numeric = Number(trimmed);
+    if (Number.isFinite(numeric)) return `${numeric}rem`;
+    return trimmed;
+  }
+  return fallback;
+};
+const resolvedTypeScale = {
+  h1: toCssSize(design.h1Size, "clamp(4.6rem, 11vw, 9.2rem)"),
+  h2: toCssSize(design.h2Size, "clamp(1.8rem, 4.6vw, 3rem)"),
+  h3: toCssSize(design.h3Size, "clamp(1.25rem, 2.6vw, 1.9rem)"),
+  h4: toCssSize(design.h4Size, "clamp(1.1rem, 1.9vw, 1.4rem)"),
+  h5: toCssSize(design.h5Size, "clamp(0.95rem, 1.4vw, 1.2rem)"),
+  h6: toCssSize(design.h6Size, "clamp(0.88rem, 1.2vw, 1.04rem)"),
+  body: toCssSize(design.bodySize, "1rem"),
+};
+
+const fallbackNavItems = [
   { href: "/", label: "Home" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/projects", label: "Projects" },
-  { href: "/notes", label: "Notes" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ];
 
+const mappedNav = (siteSettings?.navigation || [])
+  .map((item: NavigationItem) => {
+    const label = (item.label || "").trim();
+    if (!label) return null;
+    const href = item.url?.trim()
+      ? item.url.trim()
+      : item.page
+        ? item.page.isHome || item.page.slug === "home"
+          ? "/"
+          : `/${(item.page.slug || "").replace(/^\/+/, "")}`
+        : "";
+    if (!href) return null;
+    return { href, label, openInNewTab: Boolean(item.openInNewTab), external: /^https?:\/\//i.test(href) };
+  })
+  .filter(Boolean) as { href: string; label: string; openInNewTab: boolean; external: boolean }[];
+
+const navItems = mappedNav.length ? mappedNav : fallbackNavItems.map((item) => ({ ...item, openInNewTab: false, external: false }));
+
 const currentPath = Astro.url.pathname;
+const isHomeRoute = currentPath === "/";
 ---
 
 <!doctype html>
@@ -26,21 +107,64 @@ const currentPath = Astro.url.pathname;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    {noIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
+    {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={ogTitle || title} />
+    <meta property="og:description" content={ogDescription || description} />
+    {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
+    {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle || title} />
+    <meta name="twitter:description" content={ogDescription || description} />
+    {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
     <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800&family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <slot name="head" />
   </head>
-  <body class="bg-zinc-950 text-zinc-100">
-    <header class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
-      <nav class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-        <a href="/" class="text-sm font-semibold tracking-[0.2em] text-teal-300">QUANTIZED VISION</a>
-        <div class="flex flex-wrap gap-2 text-sm">
+  <body
+    class="qv-shell min-h-screen bg-[var(--qv-base)] text-[var(--qv-text)]"
+    style={`
+      --qv-font-display:${headingFontStack};
+      --qv-font-body:${bodyFontStack};
+      --qv-font-ui:${uiFontStack};
+      --qv-h1-size:${resolvedTypeScale.h1};
+      --qv-h2-size:${resolvedTypeScale.h2};
+      --qv-h3-size:${resolvedTypeScale.h3};
+      --qv-h4-size:${resolvedTypeScale.h4};
+      --qv-h5-size:${resolvedTypeScale.h5};
+      --qv-h6-size:${resolvedTypeScale.h6};
+      --qv-body-size:${resolvedTypeScale.body};
+      --qv-text:${design.textColor};
+      --qv-muted:${design.mutedColor};
+      --qv-accent:${design.accentColor};
+      --qv-link:${design.linkColor};
+    `}
+  >
+    <div class="qv-bg"></div>
+    <div class="qv-anim-orb is-cyan"></div>
+    <div class="qv-anim-orb is-orange"></div>
+    <div class="qv-anim-orb is-magenta"></div>
+    <header class="fixed left-0 right-0 top-0 z-30 border-b border-[rgb(0_217_255_/_0.12)] bg-[#0d0d1a]/96 backdrop-blur-xl">
+      <nav class="mx-auto grid w-full max-w-[1440px] grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-5 lg:px-12">
+        <a href="/" class="inline-flex items-center gap-2">
+          <img src="/img/works/logo-watermark.png" alt="" class="h-9 w-9 object-contain" />
+        </a>
+        <span></span>
+        <div class="hidden flex-wrap justify-end gap-10 md:flex text-[clamp(0.95rem,1.25vw,1.05rem)]">
           {navItems.map((item) => (
             <a
               href={item.href}
+              target={item.openInNewTab ? "_blank" : undefined}
+              rel={item.openInNewTab ? "noopener noreferrer" : undefined}
               class:list={[
-                "rounded px-3 py-1.5 transition",
-                currentPath === item.href
-                  ? "bg-teal-300 text-zinc-900"
-                  : "text-zinc-300 hover:bg-zinc-800 hover:text-white",
+                "qv-nav-link px-0 py-1",
+                !item.external && currentPath === item.href ? "is-active" : "",
               ]}
             >
               {item.label}
@@ -49,10 +173,22 @@ const currentPath = Astro.url.pathname;
         </div>
       </nav>
     </header>
-    <main class="mx-auto w-full max-w-6xl px-4 py-10">
+    <main
+      class:list={[
+        "w-full pt-24 md:pb-12",
+        isHomeRoute
+          ? "px-0 pb-0"
+          : "mx-auto max-w-[1440px] px-6 pb-10 lg:px-12",
+      ]}
+    >
       <slot />
     </main>
-    <footer class="border-t border-zinc-800 px-4 py-8 text-center text-sm text-zinc-400">
+    <footer
+      class:list={[
+        "w-full px-4 py-10 text-center text-sm text-[var(--qv-muted)]",
+        isHomeRoute ? "mt-0" : "mx-auto mt-10 max-w-[1440px] border-t border-[rgb(0_217_255_/_0.16)]",
+      ]}
+    >
       <p>© {new Date().getFullYear()} Quantized Vision</p>
     </footer>
   </body>

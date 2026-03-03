@@ -1,0 +1,42 @@
+---
+import PageSections from "../components/PageSections.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { get404Page, getArtworks, getPosts, getProjects } from "../lib/content";
+import type { HomeThemeVariant } from "../types/content";
+
+const [page404, artworks, posts, projects] = await Promise.all([get404Page(), getArtworks(), getPosts(), getProjects()]);
+
+const themePresets: Record<HomeThemeVariant, { section: string }> = {
+  "crimson-ice": { section: "border-[#202d47] bg-[#0a1224]" },
+  "obsidian-neon": { section: "border-[#1c3548] bg-[#071823]" },
+  "mono-editorial": { section: "border-[#3a3a45] bg-[#101014]" },
+};
+
+const themeVariant = page404?.themeVariant || "crimson-ice";
+const theme = themePresets[themeVariant] || themePresets["crimson-ice"];
+const sectionList = Array.isArray(page404?.sections) ? page404.sections.filter(Boolean) : [];
+const title = page404?.seo?.metaTitle || "404 | Quantized Vision";
+const description = page404?.seo?.metaDescription || "Page not found.";
+---
+
+<SiteLayout
+  title={title}
+  description={description}
+  canonicalUrl={page404?.seo?.canonicalUrl}
+  ogTitle={page404?.seo?.ogTitle}
+  ogDescription={page404?.seo?.ogDescription}
+  ogImage={page404?.seo?.ogImage}
+  noIndex={Boolean(page404?.seo?.noIndex)}
+>
+  <section class="dynamic-template space-y-8">
+    <article class="qv-hero qv-section-in rounded-2xl p-6 md:p-9 md:py-12">
+      <p class="qv-eyebrow inline-flex rounded-full border px-3 py-1 text-xs uppercase tracking-[0.16em]">404</p>
+      <h1 class="mt-4 max-w-5xl font-black uppercase">{page404?.hero?.title || "Page Not Found"}</h1>
+      <p class="mt-5 max-w-3xl qv-hero-body qv-muted">{page404?.hero?.body || "The page you requested does not exist."}</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="/" class="qv-btn-accent rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">Back Home</a>
+      </div>
+    </article>
+    <PageSections sections={sectionList} artworks={artworks} posts={posts} projects={projects} themeSectionClass={theme.section} />
+  </section>
+</SiteLayout>

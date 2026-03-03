@@ -8,16 +8,20 @@ const token = import.meta.env.SANITY_API_READ_TOKEN;
 
 export const isSanityConfigured = Boolean(projectId && dataset);
 
-export const sanityClient = isSanityConfigured
-  ? createClient({
-      projectId,
-      dataset,
-      apiVersion,
-      useCdn: true,
-      token,
-      perspective: "published",
-    })
-  : null;
+export function getSanityClient(preview = false) {
+  if (!isSanityConfigured) return null;
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    // Keep CMS edits visible immediately (no CDN lag).
+    useCdn: false,
+    token,
+    perspective: preview ? "previewDrafts" : "published",
+  });
+}
+
+export const sanityClient = getSanityClient(false);
 
 const builder = sanityClient ? createImageUrlBuilder(sanityClient) : null;
 

@@ -1,0 +1,767 @@
+---
+import type { Artwork, HomeSection, Post, Project } from "../types/content";
+
+interface Props {
+  sections: HomeSection[];
+  artworks: Artwork[];
+  posts: Post[];
+  projects: Project[];
+  themeSectionClass: string;
+}
+
+const { sections, artworks, posts, projects, themeSectionClass } = Astro.props;
+
+const getSectionArtworks = (limit = 6, sourceCollection?: string) => {
+  const base = sourceCollection ? artworks.filter((item) => item.collection === sourceCollection) : artworks;
+  return base.slice(0, Math.max(1, limit));
+};
+const getSectionPosts = (limit = 6): Post[] => posts.slice(0, Math.max(1, limit));
+const getSectionProjects = (limit = 50): Project[] => projects.slice(0, Math.max(1, limit));
+const fallbackProjects: Project[] = [
+  {
+    title: "Neon Corridor Campaign",
+    slug: "neon-corridor-campaign",
+    date: "2026-03-01",
+    summary: "Cross-platform visual campaign using AI-generated key art and motion cutdowns.",
+    stack: ["Midjourney", "Runway", "Premiere"],
+    tags: ["campaign", "ai art", "motion"],
+    externalUrl: "",
+  },
+  {
+    title: "Crimson Ice Identity Pack",
+    slug: "crimson-ice-identity-pack",
+    date: "2026-02-20",
+    summary: "Brand system exploration with modular type treatments and cinematic gradient language.",
+    stack: ["Photoshop", "Illustrator", "Figma"],
+    tags: ["branding", "identity", "design system"],
+    externalUrl: "",
+  },
+  {
+    title: "Black Portrait Series",
+    slug: "black-portrait-series",
+    date: "2026-02-11",
+    summary: "Editorial portrait collection with staged lighting and post-processed neo-noir style.",
+    stack: ["Camera", "Lightroom", "Resolve"],
+    tags: ["portrait", "editorial", "photo"],
+    externalUrl: "",
+  },
+  {
+    title: "Desert Mantra Music Visual",
+    slug: "desert-mantra-music-visual",
+    date: "2026-01-27",
+    summary: "Audio-reactive visual direction for a progressive house track launch.",
+    stack: ["Suno", "Pika", "After Effects"],
+    tags: ["music", "visualizer", "launch"],
+    externalUrl: "",
+  },
+];
+
+const getExternalHost = (url?: string) => {
+  if (!url) return "";
+  try {
+    return new URL(url).hostname.replace("www.", "");
+  } catch {
+    return "";
+  }
+};
+const getExternalDisplayTitle = (title: string) => {
+  const withoutUrls = title.replace(/https?:\/\/\S+/gi, "").trim();
+  const beforeHashtags = withoutUrls.split("#")[0]?.trim() || withoutUrls;
+  const compact = beforeHashtags.replace(/\s+/g, " ").trim();
+  if (!compact) return "External Post";
+  return compact.length > 64 ? `${compact.slice(0, 64).trim()}...` : compact;
+};
+
+const detectPlatform = (platform: string | undefined, label: string | undefined, url: string) => {
+  if (platform) return platform.toLowerCase();
+  const raw = `${label || ""} ${url}`.toLowerCase();
+  if (raw.includes("instagram")) return "instagram";
+  if (raw.includes("tiktok")) return "tiktok";
+  if (raw.includes("youtube") || raw.includes("youtu.be")) return "youtube";
+  if (raw.includes("x.com") || raw.includes("twitter")) return "x";
+  if (raw.includes("linkedin")) return "linkedin";
+  return "link";
+};
+const platformTitle = (platform: string) =>
+  platform === "instagram"
+    ? "Instagram"
+    : platform === "tiktok"
+      ? "TikTok"
+      : platform === "youtube"
+        ? "YouTube"
+        : platform === "x"
+          ? "X"
+          : platform === "linkedin"
+            ? "LinkedIn"
+            : "Link";
+const getFormSubmitAction = (recipientEmail?: string) => {
+  const clean = (recipientEmail || "").trim();
+  if (!clean) return "";
+  return `https://formsubmit.co/${encodeURIComponent(clean)}`;
+};
+const getSectionMeta = (section: HomeSection) => {
+  const options = (section as any).options || {};
+  const anchorIdRaw =
+    typeof options.anchorId === "string" ? options.anchorId : typeof (section as any).anchorId === "string" ? (section as any).anchorId : "";
+  const anchorId = anchorIdRaw.trim();
+  const startAtRaw = typeof options.startAt === "string" ? options.startAt : typeof (section as any).startAt === "string" ? (section as any).startAt : "";
+  const endAtRaw = typeof options.endAt === "string" ? options.endAt : typeof (section as any).endAt === "string" ? (section as any).endAt : "";
+  const now = Date.now();
+  const startAtTs = startAtRaw ? Date.parse(startAtRaw) : NaN;
+  const endAtTs = endAtRaw ? Date.parse(endAtRaw) : NaN;
+  const isBeforeWindow = !Number.isNaN(startAtTs) && now < startAtTs;
+  const isAfterWindow = !Number.isNaN(endAtTs) && now > endAtTs;
+  return {
+    hidden: Boolean(options.hidden || (section as any).hidden || isBeforeWindow || isAfterWindow),
+    anchorId: anchorId || undefined,
+  };
+};
+---
+
+{
+  sections.map((section, sectionIndex) => {
+    const sectionMeta = getSectionMeta(section);
+    if (sectionMeta.hidden) return null;
+
+    if (section._type === "artworkArchiveSection") {
+      const archiveId = `archive-${sectionIndex}`;
+      const collections = Array.from(new Set(artworks.map((a) => a.collection?.trim()).filter((v): v is string => Boolean(v)))).sort((a, b) => a.localeCompare(b));
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section space-y-5" data-art-archive={archiveId}>
+          <p class="qv-section-kicker">Gallery</p>
+          <h2 class="qv-section-title">{section.heading || "Exhibition Wall"}</h2>
+          {section.description ? <p class="qv-muted">{section.description}</p> : null}
+          {section.enableFilters !== false ? (
+            <div class="flex flex-wrap gap-2">
+              <button class="collection-chip is-active qv-chip rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.11em]" data-collection-chip data-collection-value="all">
+                All
+              </button>
+              {collections.map((collection) => (
+                <button class="collection-chip qv-chip rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.11em]" data-collection-chip data-collection-value={collection}>
+                  {collection}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <div class="columns-1 gap-4 md:columns-2 xl:columns-3">
+            {artworks.map((artwork, index) => {
+              const isExternal = artwork.mediaType === "external" && Boolean(artwork.externalUrl);
+              const externalHost = getExternalHost(artwork.externalUrl);
+              const externalPreview = artwork.externalThumbnail || artwork.cover;
+              const externalTitle = getExternalDisplayTitle(artwork.title);
+              const platformLabel = externalHost.includes("tiktok")
+                ? "TikTok"
+                : externalHost.includes("instagram")
+                  ? "Instagram"
+                  : externalHost.includes("youtube") || externalHost.includes("youtu.be")
+                    ? "YouTube"
+                    : "External";
+              return (
+                <figure class="gallery-item qv-card qv-archive-item group relative mb-4 break-inside-avoid overflow-hidden rounded-xl" data-collection={artwork.collection || "uncategorized"}>
+                  <button
+                    class="block w-full text-left"
+                    data-lightbox-item
+                    data-index={String(index)}
+                    data-slug={artwork.slug}
+                    data-has-gallery={String((artwork.galleryImages?.length ?? 0) > 0)}
+                    data-src={artwork.cover}
+                    data-title={artwork.title}
+                    data-lane={artwork.lane}
+                    data-collection={artwork.collection || ""}
+                    data-external-url={artwork.externalUrl}
+                    data-media-type={artwork.mediaType}
+                    data-external-thumbnail={artwork.externalThumbnail || ""}
+                    data-images={encodeURIComponent(JSON.stringify(artwork.galleryImages || []))}
+                  >
+                    {isExternal ? (
+                      <div
+                        class="relative min-h-[260px]"
+                        style={`background-image:${externalPreview ? `linear-gradient(180deg, rgba(4,9,22,0.14), rgba(4,9,22,0.34)),url('${externalPreview.replace(/'/g, "%27")}')` : "radial-gradient(120%_80%_at_10%_0%,rgba(225,29,72,0.3),transparent_60%),radial-gradient(100%_90%_at_95%_100%,rgba(96,165,250,0.25),transparent_60%),linear-gradient(180deg,#0a1224,#060b18)"}; background-size: cover; background-position: center;`}
+                      ></div>
+                    ) : artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
+                      <video src={artwork.cover} class="w-full align-middle select-none" muted playsinline preload="metadata" controlslist="nodownload" oncontextmenu="return false" />
+                    ) : (
+                      <img src={artwork.cover} alt={artwork.title} class="w-full align-middle select-none" loading="lazy" draggable="false" oncontextmenu="return false" />
+                    )}
+                    <img src="/img/works/logo-watermark.png" alt="" aria-hidden="true" class="pointer-events-none absolute bottom-3 right-3 w-24 opacity-35 md:w-28" />
+                    <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#040916]/95 via-[#040916]/70 to-transparent p-4 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+                      {isExternal ? (
+                        <>
+                          <p class="inline-flex rounded-full border border-[#30466f] bg-[#0d1730]/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbd5f2]">{platformLabel}</p>
+                          <p class="mt-2 truncate text-lg font-black uppercase tracking-[0.01em] qv-text" title={artwork.title}>{externalTitle}</p>
+                          <p class="mt-1 text-[10px] uppercase tracking-[0.11em] qv-muted">{artwork.lane}</p>
+                          {externalHost ? <p class="mt-1 text-[11px] text-[#7d91bf]">{externalHost}</p> : null}
+                        </>
+                      ) : (
+                        <>
+                          <p class="text-lg font-semibold qv-text">{artwork.title}</p>
+                          <p class="text-xs uppercase tracking-[0.11em] qv-muted">{artwork.lane}</p>
+                          {(artwork.galleryImages?.length ?? 0) > 0 ? <p class="mt-1 text-[11px] uppercase tracking-[0.12em] text-[#8ea0d0]">Open Sub Gallery</p> : null}
+                        </>
+                      )}
+                    </figcaption>
+                  </button>
+                </figure>
+              );
+            })}
+          </div>
+          <dialog id={`lightbox-${archiveId}`} class="backdrop:bg-black/90 bg-transparent p-0 qv-text">
+            <div class="relative mx-auto flex h-[95vh] w-[95vw] items-center justify-center">
+              <button id={`lightbox-close-${archiveId}`} class="qv-overlay-btn absolute right-2 top-2 z-10 rounded px-3 py-1 text-sm">Close</button>
+              <button id={`lightbox-prev-${archiveId}`} class="qv-overlay-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">‹</button>
+              <button id={`lightbox-next-${archiveId}`} class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">›</button>
+              <div class="max-h-[90vh] max-w-[90vw]">
+                <div class="relative">
+                  <img id={`lightbox-image-${archiveId}`} alt="" class="hidden max-h-[82vh] max-w-[90vw] object-contain select-none" draggable="false" />
+                  <video id={`lightbox-video-${archiveId}`} controls controlslist="nodownload noplaybackrate" class="hidden max-h-[82vh] max-w-[90vw] object-contain"></video>
+                  <img src="/img/works/logo-watermark.png" alt="" aria-hidden="true" class="pointer-events-none absolute bottom-3 right-3 w-36 opacity-45" />
+                </div>
+                <div class="qv-card mt-3 rounded px-3 py-2">
+                  <p id={`lightbox-title-${archiveId}`} class="font-semibold"></p>
+                  <p id={`lightbox-lane-${archiveId}`} class="text-xs uppercase tracking-[0.1em] qv-muted"></p>
+                </div>
+              </div>
+            </div>
+          </dialog>
+        </section>
+      );
+    }
+
+    if (section._type === "postArchiveSection") {
+      const selected = getSectionPosts(section.limit ?? 50);
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section space-y-4">
+          <p class="qv-section-kicker">Posts</p>
+          <h2 class="qv-section-title">{section.heading || "Posts"}</h2>
+          {section.description ? <p class="max-w-3xl qv-muted">{section.description}</p> : null}
+          {selected.length === 0 ? (
+            <div class="qv-card qv-panel rounded-xl p-5 qv-muted">No posts published yet.</div>
+          ) : (
+            <div class="grid gap-4 md:grid-cols-2">
+              {selected.map((post, index) => (
+                <article class="qv-card qv-slider-card space-y-2 overflow-hidden rounded-xl">
+                  {post.cover ? <img src={post.cover} alt={post.title} class="h-48 w-full object-cover" loading="lazy" /> : null}
+                  <div class="space-y-2 p-5">
+                    <p class="text-xs uppercase tracking-[0.11em] qv-muted">Post {(index + 1).toString().padStart(2, "0")}</p>
+                    <h3 class="font-black uppercase tracking-[0.03em] qv-text">{post.title}</h3>
+                    <p class="text-xs uppercase tracking-[0.1em] qv-muted">{post.date}</p>
+                    <p class="text-xs uppercase tracking-[0.1em] qv-muted">
+                      {post.author ? `By ${post.author}` : "By Quantized Vision"}{post.readTimeMinutes ? ` · ${post.readTimeMinutes} min read` : ""}
+                    </p>
+                    <p class="qv-text">{post.excerpt}</p>
+                    <p class="text-xs uppercase tracking-[0.1em] qv-muted">Tags: {post.tags.join(", ")}</p>
+                    {post.featured ? <p class="inline-flex rounded-full border border-[#526ba3] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#dbe8ff]">Featured</p> : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      );
+    }
+
+    if (section._type === "projectArchiveSection") {
+      const selected = getSectionProjects(section.limit ?? 50);
+      const previewProjects = selected.length ? selected : fallbackProjects.slice(0, Math.max(1, section.limit ?? 50));
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section space-y-4">
+          <p class="qv-section-kicker">Projects</p>
+          <h2 class="qv-section-title">{section.heading || "Projects"}</h2>
+          {section.description ? <p class="max-w-3xl qv-muted">{section.description}</p> : null}
+          {selected.length === 0 ? <p class="text-xs uppercase tracking-[0.11em] text-[#9cb0df]">Showing temporary dummy projects for layout preview.</p> : null}
+          <div class="grid gap-4 md:grid-cols-2">
+            {previewProjects.map((project, index) => (
+              <article class="qv-card qv-slider-card space-y-2 rounded-xl p-5">
+                <p class="text-xs uppercase tracking-[0.11em] qv-muted">Case {(index + 1).toString().padStart(2, "0")}</p>
+                <h3 class="font-black uppercase tracking-[0.03em] qv-text">{project.title}</h3>
+                <p class="text-xs uppercase tracking-[0.1em] qv-muted">{project.date}</p>
+                <p class="qv-text">{project.summary}</p>
+                <p class="text-xs uppercase tracking-[0.1em] qv-muted">Stack: {project.stack.join(", ")}</p>
+                {project.externalUrl ? <a href={project.externalUrl} class="qv-btn-soft inline-block rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-[0.1em]">View project</a> : null}
+              </article>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    if (section._type === "homeStatsSection") {
+      const statItems = Array.isArray(section.items) ? section.items : [];
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section space-y-3">
+          {section.heading ? <h2 class="font-black uppercase tracking-[0.04em]">{section.heading}</h2> : null}
+          <div class="grid gap-4 md:grid-cols-3">
+            {statItems.map((item) => (
+              <article class:list={["rounded-xl border p-5", themeSectionClass]}>
+                <p class="qv-accent text-3xl font-black">{item.value}</p>
+                <p class="mt-1 text-xs uppercase tracking-[0.12em] qv-muted">{item.label}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    if (section._type === "homeSocialSection") {
+      const socialLinks = Array.isArray(section.links) ? section.links : [];
+      const alignClass = section.alignment === "center" ? "justify-center" : section.alignment === "right" ? "justify-end" : "justify-start";
+      const sizeClass =
+        section.iconSize === "sm"
+          ? { shell: "h-9 w-9", icon: "h-3 w-3", badge: "h-6 w-6" }
+          : section.iconSize === "lg"
+            ? { shell: "h-12 w-12", icon: "h-5 w-5", badge: "h-8 w-8" }
+            : section.iconSize === "xl"
+              ? { shell: "h-14 w-14", icon: "h-6 w-6", badge: "h-9 w-9" }
+              : { shell: "h-11 w-11", icon: "h-4 w-4", badge: "h-7 w-7" };
+      return (
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+          <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2>
+          <div class:list={["mt-4 flex flex-wrap gap-3", alignClass]}>
+            {socialLinks.map((link: any) => {
+              const rawUrl = link.url || link.link || "";
+              if (!rawUrl) return null;
+              const platform = detectPlatform(link.platform, link.label || link.title, rawUrl);
+              return (
+                <a href={rawUrl} target="_blank" rel="noopener noreferrer" title={platformTitle(platform)} class:list={["qv-btn-soft inline-flex items-center justify-center rounded-full", sizeClass.shell]}>
+                  <span class:list={["inline-flex items-center justify-center rounded-full border border-[#3e5380] bg-[#0a162f]", sizeClass.badge]}>
+                    {platform === "instagram" ? (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5zM17.8 6.7a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1z"/></svg>
+                    ) : platform === "tiktok" ? (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M14 3h2.4A5.6 5.6 0 0 0 20 6.6V9a8 8 0 0 1-4-1.1V14a6 6 0 1 1-6-6h.5v2.5H10a3.5 3.5 0 1 0 3.5 3.5V3z"/></svg>
+                    ) : platform === "youtube" ? (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M23 12s0-3.6-.5-5.3a2.8 2.8 0 0 0-2-2C18.7 4.2 12 4.2 12 4.2s-6.7 0-8.5.5a2.8 2.8 0 0 0-2 2C1 8.4 1 12 1 12s0 3.6.5 5.3a2.8 2.8 0 0 0 2 2c1.8.5 8.5.5 8.5.5s6.7 0 8.5-.5a2.8 2.8 0 0 0 2-2C23 15.6 23 12 23 12zM10 15.5v-7l6 3.5-6 3.5z"/></svg>
+                    ) : platform === "x" ? (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M18.9 2H22l-6.8 7.8L23 22h-6.4l-5-6.3L5.8 22H2.7l7.3-8.4L1 2h6.5l4.5 5.8L18.9 2z"/></svg>
+                    ) : platform === "linkedin" ? (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M4.98 3.5A2.5 2.5 0 1 1 2.5 6a2.5 2.5 0 0 1 2.48-2.5zM3 8h4v13H3zM9 8h3.8v1.8h.1A4.2 4.2 0 0 1 16.7 8c4 0 4.8 2.7 4.8 6.1V21h-4v-6c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H9z"/></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M3.9 12a4.1 4.1 0 0 1 4.1-4.1h3v2h-3a2.1 2.1 0 1 0 0 4.2h3v2h-3A4.1 4.1 0 0 1 3.9 12zm6.1 1h4v-2h-4v2zm6-5.1h-3v2h3a2.1 2.1 0 1 1 0 4.2h-3v2h3a4.1 4.1 0 1 0 0-8.2z"/></svg>
+                    )}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      );
+    }
+
+    if (section._type === "homeGallerySection") {
+      const selected = getSectionArtworks(section.limit ?? 6, section.sourceCollection);
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section space-y-3">
+          <div class="flex items-end justify-between gap-4">
+            <div>
+              <h2 class="font-black uppercase tracking-[0.04em]">{section.heading}</h2>
+              {section.description ? <p class="qv-muted">{section.description}</p> : null}
+            </div>
+            <a href="/gallery" class="qv-link text-xs uppercase tracking-[0.12em] hover:text-[var(--qv-text)]">Open Gallery</a>
+          </div>
+          {section.styleVariant === "cards" ? (
+            <div class="grid gap-4 md:grid-cols-3">
+              {selected.map((artwork) => (
+                <a href="/gallery" class:list={["qv-slider-card overflow-hidden rounded-xl border", themeSectionClass]}>
+                  {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
+                    <video src={artwork.cover} class="w-full align-middle" muted playsinline preload="metadata" />
+                  ) : (
+                    <img src={artwork.externalThumbnail || artwork.cover} alt={artwork.title} class="w-full align-middle" loading="lazy" />
+                  )}
+                  <div class="p-3"><p class="qv-text font-semibold">{artwork.title}</p></div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div class="columns-1 gap-4 md:columns-2 xl:columns-3">
+              {selected.map((artwork) => (
+                <a href="/gallery" class:list={["qv-archive-item mb-4 block break-inside-avoid overflow-hidden rounded-xl border", themeSectionClass]}>
+                  {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
+                    <video src={artwork.cover} class="w-full align-middle" muted playsinline preload="metadata" />
+                  ) : (
+                    <img src={artwork.externalThumbnail || artwork.cover} alt={artwork.title} class="w-full align-middle" loading="lazy" />
+                  )}
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+      );
+    }
+
+    if (section._type === "homeSearchSection") {
+      const searchId = `search-${sectionIndex}`;
+      const limit = Math.max(1, section.limit ?? 10);
+      const records = [
+        ...artworks.map((item) => ({
+          type: "Artwork",
+          title: item.title,
+          subtitle: item.collection || item.lane || "",
+          text: `${item.title} ${item.description || ""} ${(item.tags || []).join(" ")} ${(item.tools || []).join(" ")}`,
+          href: `/gallery`,
+        })),
+        ...posts.map((item) => ({
+          type: "Post",
+          title: item.title,
+          subtitle: item.date || "",
+          text: `${item.title} ${item.excerpt || ""} ${(item.tags || []).join(" ")} ${item.author || ""}`,
+          href: `/posts`,
+        })),
+        ...projects.map((item) => ({
+          type: "Project",
+          title: item.title,
+          subtitle: item.date || "",
+          text: `${item.title} ${item.summary || ""} ${(item.stack || []).join(" ")} ${(item.tags || []).join(" ")}`,
+          href: `/projects`,
+        })),
+      ];
+      return (
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]} data-site-search={searchId} data-search-limit={String(limit)}>
+          <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2>
+          <div class="mt-4">
+            <input
+              type="search"
+              class="qv-btn-soft w-full rounded-xl px-4 py-3 outline-none"
+              placeholder={section.placeholder || "Search artworks, posts, projects..."}
+              data-search-input
+            />
+          </div>
+          <p class="mt-3 text-sm qv-muted" data-search-empty>{section.emptyMessage || "No matching results yet."}</p>
+          <div class="mt-3 grid gap-3 md:grid-cols-2" data-search-results>
+            {records.map((record) => (
+              <a
+                href={record.href}
+                class="qv-card hidden rounded-xl border p-4"
+                data-search-item
+                data-search-text={record.text.toLowerCase()}
+              >
+                <p class="text-[10px] uppercase tracking-[0.12em] qv-muted">{record.type}</p>
+                <p class="mt-1 font-bold uppercase tracking-[0.03em] qv-text">{record.title}</p>
+                {record.subtitle ? <p class="mt-1 text-xs qv-muted">{record.subtitle}</p> : null}
+              </a>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    if (section._type === "homePostsSection") {
+      const selected = getSectionPosts(section.limit ?? 6);
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section space-y-3">
+          <div class="flex items-end justify-between gap-4">
+            <div>
+              <h2 class="font-black uppercase tracking-[0.04em]">{section.heading}</h2>
+              {section.description ? <p class="qv-muted">{section.description}</p> : null}
+            </div>
+            <div class="flex items-center gap-3">
+              <p class="text-xs uppercase tracking-[0.12em] qv-muted" data-slider-count={`posts-${sectionIndex}`}>1 / {selected.length}</p>
+              <a href="/posts" class="qv-link text-xs uppercase tracking-[0.12em] hover:text-[var(--qv-text)]">View Posts</a>
+            </div>
+          </div>
+          <div class="relative">
+            <button data-slider-prev={`posts-${sectionIndex}`} class="qv-overlay-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded px-2 py-1">‹</button>
+            <button data-slider-next={`posts-${sectionIndex}`} class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-2 py-1">›</button>
+            <div class="qv-scroll-row flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2" data-slider-track={`posts-${sectionIndex}`}>
+              {selected.map((post) => (
+                <article class:list={["qv-slider-card min-w-[290px] snap-start overflow-hidden rounded-xl border md:min-w-[340px]", themeSectionClass]}>
+                  {post.cover ? <img src={post.cover} alt={post.title} class="h-44 w-full object-cover" loading="lazy" /> : null}
+                  <div class="space-y-2 p-4">
+                    <p class="text-xs uppercase tracking-[0.1em] qv-muted">{post.date}</p>
+                    <h3 class="font-black uppercase tracking-[0.02em] qv-text">{post.title}</h3>
+                    <p class="text-xs uppercase tracking-[0.1em] qv-muted">
+                      {post.author ? `By ${post.author}` : "By Quantized Vision"}{post.readTimeMinutes ? ` · ${post.readTimeMinutes} min read` : ""}
+                    </p>
+                    <p class="text-sm qv-text">{post.excerpt}</p>
+                    {post.featured ? <p class="inline-flex rounded-full border border-[#526ba3] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#dbe8ff]">Featured</p> : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section._type === "homeMediaSliderSection") {
+      const selected = getSectionArtworks(section.limit ?? 8, section.sourceCollection);
+      return (
+        <section class="space-y-3">
+          <div class="flex items-end justify-between gap-4">
+            <div>
+              <h2 class="font-black uppercase tracking-[0.04em]">{section.heading}</h2>
+              {section.description ? <p class="qv-muted">{section.description}</p> : null}
+            </div>
+            <a href="/gallery" class="qv-link text-xs uppercase tracking-[0.12em] hover:text-[var(--qv-text)]">See All</a>
+          </div>
+          <div class="relative">
+            <button data-slider-prev={`media-${sectionIndex}`} class="qv-overlay-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded px-2 py-1">‹</button>
+            <button data-slider-next={`media-${sectionIndex}`} class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-2 py-1">›</button>
+            <div class="qv-scroll-row flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2" data-slider-track={`media-${sectionIndex}`}>
+              {selected.map((artwork) => (
+                <a href="/gallery" class:list={["qv-slider-card min-w-[280px] snap-start overflow-hidden rounded-xl border md:min-w-[360px]", themeSectionClass]}>
+                  {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
+                    <video src={artwork.cover} class="h-56 w-full object-cover" muted playsinline preload="metadata" />
+                  ) : (
+                    <img src={artwork.externalThumbnail || artwork.cover} alt={artwork.title} class="h-56 w-full object-cover" loading="lazy" />
+                  )}
+                  <div class="p-3"><p class="text-sm font-semibold qv-text">{artwork.title}</p></div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section._type === "homeContactSection") {
+      const formAction = getFormSubmitAction(section.recipientEmail);
+      return (
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+          <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2>
+          {section.body ? <p class="mt-3 max-w-3xl qv-muted">{section.body}</p> : null}
+          {formAction ? (
+            <form action={formAction} method="POST" class="mt-5 grid gap-3 md:grid-cols-2">
+              <input type="hidden" name="_subject" value={`${section.heading} — new inquiry`} />
+              <input type="hidden" name="_captcha" value="false" />
+              {section.successRedirectUrl ? <input type="hidden" name="_next" value={section.successRedirectUrl} /> : null}
+              <label class="space-y-2 md:col-span-2">
+                <span class="text-xs uppercase tracking-[0.11em] qv-muted">{section.subjectLabel || "Subject"}</span>
+                <input
+                  type="text"
+                  name="subject"
+                  required
+                  placeholder={section.subjectPlaceholder || "Select a project subject"}
+                  class="qv-btn-soft w-full rounded-xl px-4 py-3 outline-none"
+                />
+              </label>
+              <label class="space-y-2">
+                <span class="text-xs uppercase tracking-[0.11em] qv-muted">{section.emailLabel || "Email"}</span>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder={section.emailPlaceholder || "your@email.com"}
+                  class="qv-btn-soft w-full rounded-xl px-4 py-3 outline-none"
+                />
+              </label>
+              <label class="space-y-2">
+                <span class="text-xs uppercase tracking-[0.11em] qv-muted">{section.phoneLabel || "Phone"}</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  placeholder={section.phonePlaceholder || "+1 555 123 4567"}
+                  class="qv-btn-soft w-full rounded-xl px-4 py-3 outline-none"
+                />
+              </label>
+              <label class="space-y-2 md:col-span-2">
+                <span class="text-xs uppercase tracking-[0.11em] qv-muted">{section.messageLabel || "Message"}</span>
+                <textarea
+                  name="message"
+                  required
+                  rows={5}
+                  placeholder={section.messagePlaceholder || "Tell me about your project..."}
+                  class="qv-btn-soft w-full rounded-xl px-4 py-3 outline-none"
+                ></textarea>
+              </label>
+              <button type="submit" class="qv-btn-accent rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em] md:w-fit">
+                {section.submitLabel || "Submit"}
+              </button>
+            </form>
+          ) : (
+            <div class="qv-card mt-5 rounded-xl px-4 py-3 text-sm qv-muted">Set a `Recipient Email` in this Contact Form section to enable submissions.</div>
+          )}
+        </section>
+      );
+    }
+
+    if (section._type === "homeFooterSection") {
+      return (
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+          <p class="font-black uppercase tracking-[0.08em]">{section.brand || "Quantized Vision"}</p>
+          {section.tagline ? <p class="mt-2 qv-muted">{section.tagline}</p> : null}
+          <div class="mt-4 flex flex-wrap gap-3 text-xs uppercase tracking-[0.12em]">
+            {(section.links || []).map((link) => <a href={link.url} class="qv-btn-soft rounded-full px-3 py-1.5">{link.label}</a>)}
+          </div>
+        </section>
+      );
+    }
+
+    return (
+      <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+        <h2 class="font-black uppercase tracking-[0.03em]">{(section as any).heading}</h2>
+        {(section as any).body ? <p class="mt-3 max-w-3xl qv-muted">{(section as any).body}</p> : null}
+        {(section as any).buttonLabel && (section as any).buttonUrl ? (
+          <a href={(section as any).buttonUrl} class="qv-btn-accent mt-5 inline-flex rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
+            {(section as any).buttonLabel}
+          </a>
+        ) : null}
+      </section>
+    );
+  })
+}
+
+<script is:inline>
+  const setupSlider = (id) => {
+    const track = document.querySelector(`[data-slider-track="${id}"]`);
+    const prev = document.querySelector(`[data-slider-prev="${id}"]`);
+    const next = document.querySelector(`[data-slider-next="${id}"]`);
+    const counter = document.querySelector(`[data-slider-count="${id}"]`);
+    if (!track || !prev || !next) return;
+    const items = Array.from(track.children);
+    const getIndex = () => {
+      const scrollLeft = track.scrollLeft;
+      if (items.length === 0) return 1;
+      let best = 0;
+      let bestDelta = Infinity;
+      items.forEach((item, idx) => {
+        const delta = Math.abs(item.offsetLeft - scrollLeft);
+        if (delta < bestDelta) {
+          bestDelta = delta;
+          best = idx;
+        }
+      });
+      return best + 1;
+    };
+    const updateCounter = () => {
+      if (counter) counter.textContent = `${getIndex()} / ${items.length || 1}`;
+    };
+    const move = (dir) => {
+      const width = track.clientWidth * 0.8;
+      track.scrollBy({ left: dir * width, behavior: "smooth" });
+    };
+    prev.addEventListener("click", () => move(-1));
+    next.addEventListener("click", () => move(1));
+    track.addEventListener("scroll", updateCounter, { passive: true });
+    updateCounter();
+  };
+
+  const setupArchiveModule = (root) => {
+    const items = Array.from(root.querySelectorAll("[data-lightbox-item]"));
+    if (!items.length) return;
+    const moduleId = root.getAttribute("data-art-archive");
+    if (!moduleId) return;
+    const dialog = root.querySelector(`#lightbox-${moduleId}`);
+    const image = root.querySelector(`#lightbox-image-${moduleId}`);
+    const video = root.querySelector(`#lightbox-video-${moduleId}`);
+    const title = root.querySelector(`#lightbox-title-${moduleId}`);
+    const lane = root.querySelector(`#lightbox-lane-${moduleId}`);
+    const closeBtn = root.querySelector(`#lightbox-close-${moduleId}`);
+    const prevBtn = root.querySelector(`#lightbox-prev-${moduleId}`);
+    const nextBtn = root.querySelector(`#lightbox-next-${moduleId}`);
+    const chips = Array.from(root.querySelectorAll("[data-collection-chip]"));
+    const galleryItems = Array.from(root.querySelectorAll(".gallery-item"));
+    let currentIndex = 0;
+    let currentSet = [];
+    let currentSetIndex = 0;
+
+    const renderMedia = (setIndex) => {
+      if (!currentSet.length || !image || !video) return;
+      currentSetIndex = (setIndex + currentSet.length) % currentSet.length;
+      const src = currentSet[currentSetIndex];
+      const isVideo = /\.(mov|mp4|webm)$/i.test(src);
+      if (isVideo) {
+        image.classList.add("hidden");
+        video.classList.remove("hidden");
+        video.src = src;
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+        video.src = "";
+        video.classList.add("hidden");
+        image.classList.remove("hidden");
+        image.src = src;
+      }
+    };
+
+    const renderItem = (index) => {
+      if (!items.length || !image || !title || !lane) return;
+      currentIndex = (index + items.length) % items.length;
+      const current = items[currentIndex];
+      title.textContent = current.dataset.title || "";
+      lane.textContent = current.dataset.lane || "";
+      image.alt = current.dataset.title || "";
+      let parsed = [];
+      try {
+        parsed = JSON.parse(decodeURIComponent(current.dataset.images || "[]"));
+      } catch {}
+      const primary = current.dataset.src || "";
+      currentSet = parsed.length > 0 ? parsed : [primary];
+      currentSet = currentSet.filter(Boolean);
+      renderMedia(0);
+    };
+
+    items.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        const hasGallery = item.dataset.hasGallery === "true";
+        const slug = item.dataset.slug || "";
+        if (hasGallery && slug) {
+          window.location.href = `/gallery/${slug}`;
+          return;
+        }
+        const externalUrl = item.dataset.externalUrl;
+        if (externalUrl) {
+          window.open(externalUrl, "_blank", "noopener,noreferrer");
+          return;
+        }
+        renderItem(index);
+        dialog?.showModal();
+      });
+    });
+
+    closeBtn?.addEventListener("click", () => dialog?.close());
+    prevBtn?.addEventListener("click", () => {
+      if (!currentSet.length) return;
+      renderMedia(currentSetIndex - 1);
+    });
+    nextBtn?.addEventListener("click", () => {
+      if (!currentSet.length) return;
+      renderMedia(currentSetIndex + 1);
+    });
+    dialog?.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    const setFilter = (value) => {
+      galleryItems.forEach((card) => {
+        const cardValue = card.getAttribute("data-collection");
+        card.classList.toggle("hidden", !(value === "all" || cardValue === value));
+      });
+      chips.forEach((c) => {
+        const active = c.getAttribute("data-collection-value") === value;
+        c.classList.toggle("is-active", active);
+      });
+    };
+    chips.forEach((chip) => chip.addEventListener("click", () => setFilter(chip.getAttribute("data-collection-value") || "all")));
+    if (chips.length) setFilter("all");
+  };
+
+  const setupSearchModule = (root) => {
+    const input = root.querySelector("[data-search-input]");
+    const empty = root.querySelector("[data-search-empty]");
+    const items = Array.from(root.querySelectorAll("[data-search-item]"));
+    const limit = Number(root.getAttribute("data-search-limit") || "10");
+    if (!input || !items.length) return;
+
+    const update = () => {
+      const query = String(input.value || "").trim().toLowerCase();
+      let shown = 0;
+      items.forEach((item) => {
+        const hay = (item.getAttribute("data-search-text") || "").toLowerCase();
+        const match = query.length > 1 && hay.includes(query) && shown < limit;
+        item.classList.toggle("hidden", !match);
+        if (match) shown += 1;
+      });
+      if (empty) empty.classList.toggle("hidden", shown > 0 || query.length <= 1);
+    };
+
+    input.addEventListener("input", update);
+    update();
+  };
+
+  document.querySelectorAll("[data-slider-track]").forEach((node) => {
+    const id = node.getAttribute("data-slider-track");
+    if (id) setupSlider(id);
+  });
+  document.querySelectorAll("[data-art-archive]").forEach((node) => setupArchiveModule(node));
+  document.querySelectorAll("[data-site-search]").forEach((node) => setupSearchModule(node));
+</script>

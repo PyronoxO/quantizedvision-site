@@ -4,10 +4,11 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/generate-redirects.cjs",
     "preview": "astro preview",
     "astro": "astro",
     "media:prepare": "node scripts/prepare-media.mjs",
+    "cms:migrate-legacy-home": "npx sanity exec scripts/migrateLegacyHomeToPage.cjs --with-user-token --working-dir ./studio",
     "studio:dev": "npm --prefix ./studio run dev",
     "studio:build": "npm --prefix ./studio run build"
   },
