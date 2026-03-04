@@ -2,6 +2,7 @@ import { defineField, defineType } from "sanity";
 import { ColorPickerStringInput } from "../components/ColorPickerStringInput";
 import { FontSelectInput } from "../components/FontSelectInput";
 import { FontSizeSliderInput } from "../components/FontSizeSliderInput";
+import { NumberSliderInput } from "../components/NumberSliderInput";
 
 export const siteSettingsType = defineType({
   name: "siteSettings",
@@ -159,6 +160,7 @@ export const siteSettingsType = defineType({
           title: "Section Divider Opacity (0-1)",
           type: "number",
           initialValue: 0.08,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0).max(1),
         }),
         defineField({
@@ -166,6 +168,7 @@ export const siteSettingsType = defineType({
           title: "Seam Left Tint Opacity (0-1)",
           type: "number",
           initialValue: 0.11,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0).max(1),
         }),
         defineField({
@@ -173,6 +176,7 @@ export const siteSettingsType = defineType({
           title: "Seam Right Tint Opacity (0-1)",
           type: "number",
           initialValue: 0.14,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0).max(1),
         }),
         defineField({
@@ -180,6 +184,7 @@ export const siteSettingsType = defineType({
           title: "Seam Top Edge Opacity (0-1)",
           type: "number",
           initialValue: 0.16,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0).max(1),
         }),
         defineField({
@@ -187,6 +192,7 @@ export const siteSettingsType = defineType({
           title: "Seam Bottom Edge Opacity (0-1)",
           type: "number",
           initialValue: 0.14,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0).max(1),
         }),
         defineField({
@@ -194,6 +200,7 @@ export const siteSettingsType = defineType({
           title: "About Hero To Module Gap (rem)",
           type: "number",
           initialValue: 3.4,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0).max(10),
         }),
         defineField({
@@ -201,6 +208,7 @@ export const siteSettingsType = defineType({
           title: "About First Module Heading Size (rem)",
           type: "number",
           initialValue: 2.05,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0.8).max(6),
         }),
         defineField({
@@ -208,7 +216,22 @@ export const siteSettingsType = defineType({
           title: "About First Module Body Size (rem)",
           type: "number",
           initialValue: 1.16,
+          components: { input: NumberSliderInput },
           validation: (rule) => rule.min(0.7).max(3),
+        }),
+        defineField({
+          name: "customTypeScale",
+          title: "Legacy Custom Type Scale",
+          type: "boolean",
+          hidden: true,
+          readOnly: true,
+        }),
+        defineField({
+          name: "typeScalePreset",
+          title: "Legacy Type Scale Preset",
+          type: "string",
+          hidden: true,
+          readOnly: true,
         }),
       ],
     }),
