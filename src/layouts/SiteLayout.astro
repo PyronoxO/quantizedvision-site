@@ -186,6 +186,7 @@ const isHomeRoute = currentPath === "/";
               href={item.href}
               target={item.openInNewTab ? "_blank" : undefined}
               rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+              data-astro-prefetch={!item.external ? "tap" : undefined}
               class:list={[
                 "qv-nav-link px-0 py-1",
                 !item.external && currentPath === item.href ? "is-active" : "",
@@ -205,6 +206,7 @@ const isHomeRoute = currentPath === "/";
                 href={item.href}
                 target={item.openInNewTab ? "_blank" : undefined}
                 rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+                data-astro-prefetch={!item.external ? "tap" : undefined}
                 class:list={[
                   "block rounded-md px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] qv-muted hover:bg-[rgb(0_217_255_/_0.08)] hover:text-[var(--qv-text)]",
                   !item.external && currentPath === item.href ? "bg-[rgb(0_217_255_/_0.1)] text-[var(--qv-text)]" : "",
