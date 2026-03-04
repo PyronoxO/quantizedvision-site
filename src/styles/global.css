@@ -326,11 +326,24 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
   margin-top: var(--qv-about-hero-gap, 3.4rem);
 }
 
-.qv-about-page .qv-about-modules > section:first-child h2 {
-  font-size: var(--qv-about-first-module-heading-size, 2.05rem) !important;
+.qv-about-page .qv-about-modules > section:first-of-type {
+  border-top-color: transparent;
 }
 
-.qv-about-page .qv-about-modules > section:first-child .qv-muted {
+.qv-about-page .qv-about-modules > section:first-of-type::before {
+  opacity: 0.28;
+}
+
+.qv-about-page .qv-about-modules > section:first-of-type.qv-seam-section {
+  box-shadow: inset 0 1px 0 rgb(0 217 255 / 0.04), inset 0 -1px 0 rgb(255 143 110 / 0.14);
+}
+
+.qv-about-page .qv-about-modules > section:first-of-type h2 {
+  font-size: var(--qv-about-first-module-heading-size, 2.05rem) !important;
+  letter-spacing: -0.01em;
+}
+
+.qv-about-page .qv-about-modules > section:first-of-type .qv-muted {
   font-size: var(--qv-about-first-module-body-size, 1.16rem);
   line-height: 1.52;
 }
