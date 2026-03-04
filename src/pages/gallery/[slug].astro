@@ -55,9 +55,9 @@ if (!artwork || images.length === 0) {
   {artwork && images.length > 0 ? (
     <dialog id="sub-lightbox" class="backdrop:bg-black/90 bg-transparent p-0 qv-text">
       <div class="relative mx-auto flex h-[95vh] w-[95vw] items-center justify-center">
-        <button id="sub-close" class="qv-overlay-btn absolute right-2 top-2 z-10 rounded px-3 py-1 text-sm">Close</button>
-        <button id="sub-prev" class="qv-overlay-btn absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">‹</button>
-        <button id="sub-next" class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-3 py-2 text-xl">›</button>
+        <button id="sub-close" class="qv-overlay-btn absolute right-3 top-3 z-10 inline-flex min-h-[44px] items-center rounded-md px-4 py-2 text-sm">Close</button>
+        <button id="sub-prev" class="qv-overlay-btn absolute left-2 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-2xl md:h-12 md:w-12">‹</button>
+        <button id="sub-next" class="qv-overlay-btn absolute right-2 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-2xl md:h-12 md:w-12">›</button>
         <div class="max-h-[90vh] max-w-[90vw]">
           <div class="relative">
             <img id="sub-image" alt={artwork.title} class="max-h-[82vh] max-w-[90vw] object-contain select-none" draggable="false" />

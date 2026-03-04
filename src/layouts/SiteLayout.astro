@@ -224,7 +224,7 @@ const isHomeRoute = currentPath === "/";
         "w-full pt-24 md:pb-12",
         isHomeRoute
           ? "px-0 pb-0"
-          : "mx-auto max-w-[1440px] px-6 pb-10 lg:px-12",
+          : "mx-auto max-w-[1440px] px-4 pb-10 sm:px-6 lg:px-12",
       ]}
     >
       <slot />
@@ -237,5 +237,36 @@ const isHomeRoute = currentPath === "/";
     >
       <p>© {new Date().getFullYear()} Quantized Vision</p>
     </footer>
+    <script is:inline>
+      (() => {
+        const menus = Array.from(document.querySelectorAll(".qv-mobile-nav"));
+        if (!menus.length) return;
+
+        const closeAll = () => {
+          menus.forEach((menu) => {
+            if (menu instanceof HTMLDetailsElement) menu.open = false;
+          });
+        };
+
+        document.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const insideMenu = menus.some((menu) => menu.contains(target));
+          if (!insideMenu) closeAll();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeAll();
+        });
+
+        menus.forEach((menu) => {
+          menu.querySelectorAll("a[href]").forEach((link) => {
+            link.addEventListener("click", () => {
+              if (menu instanceof HTMLDetailsElement) menu.open = false;
+            });
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
