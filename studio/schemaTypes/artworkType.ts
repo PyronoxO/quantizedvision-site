@@ -33,7 +33,17 @@ export const artworkType = defineType({
         maxLength: 56,
         slugify: (input) => toCompactSlug(input, 56),
       },
-      validation: (rule) => rule.required(),
+      validation: (rule) =>
+        rule
+          .required()
+          .custom((value) => {
+            const slugValue = value?.current;
+            if (!slugValue) return "Slug is required.";
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slugValue)) {
+              return "Use lowercase letters, numbers, and dashes only (example: my-artwork-01).";
+            }
+            return true;
+          }),
       group: "main",
     }),
     defineField({ name: "date", title: "Date", type: "date", validation: (rule) => rule.required(), group: "main" }),

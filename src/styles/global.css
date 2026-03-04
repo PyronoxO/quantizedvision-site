@@ -120,6 +120,31 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
   100% { transform: translate3d(0, 0, 0); }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .qv-bg::before,
+  .qv-anim-orb {
+    animation: none !important;
+  }
+}
+
+/* Firefox can struggle with multiple full-screen blurred animated layers. */
+@supports (-moz-appearance: none) {
+  .qv-bg::before {
+    animation: none;
+    opacity: 0.22;
+  }
+
+  .qv-anim-orb {
+    animation: none;
+    filter: blur(72px);
+    opacity: 0.14;
+  }
+
+  .qv-anim-orb.is-magenta {
+    display: none;
+  }
+}
+
 .qv-nav-link {
   color: #9ca3af;
   font-family: var(--qv-font-ui);
@@ -196,6 +221,11 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
   inset: 0;
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, rgb(0 217 255 / 0.02), transparent);
+}
+
+.qv-theme-section--compact {
+  padding-top: 1.6rem;
+  padding-bottom: 1.6rem;
 }
 
 .qv-panel {

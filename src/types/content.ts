@@ -71,10 +71,10 @@ export interface HomeGallerySection {
 export interface HomeSocialSection {
   _type: "homeSocialSection";
   options?: SectionOptions;
-  heading: string;
+  heading?: string;
   alignment?: "left" | "center" | "right";
   iconSize?: "sm" | "md" | "lg" | "xl";
-  links: { platform?: "instagram" | "tiktok" | "youtube" | "x" | "linkedin" | "link"; label?: string; url: string }[];
+  links: { platform?: "instagram" | "tiktok" | "youtube" | "facebook" | "x" | "linkedin" | "link"; label?: string; url: string }[];
 }
 
 export interface HomePostsSection {

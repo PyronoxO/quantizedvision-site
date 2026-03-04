@@ -138,7 +138,7 @@ export const pageSectionArrayOf = [
     type: "object",
     fields: [
       ...sectionOptionFields,
-      defineField({ name: "heading", title: "Heading", type: "string", validation: (rule) => rule.required() }),
+      defineField({ name: "heading", title: "Heading", type: "string" }),
       defineField({
         name: "alignment",
         title: "Alignment",
@@ -183,6 +183,7 @@ export const pageSectionArrayOf = [
                     { title: "Instagram", value: "instagram" },
                     { title: "TikTok", value: "tiktok" },
                     { title: "YouTube", value: "youtube" },
+                    { title: "Facebook", value: "facebook" },
                     { title: "X (Twitter)", value: "x" },
                     { title: "LinkedIn", value: "linkedin" },
                     { title: "Generic Link", value: "link" },

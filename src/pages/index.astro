@@ -160,7 +160,9 @@ const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
       </div>
     </article>
 
-    <PageSections sections={pageSections} artworks={artworks} posts={posts} projects={projects} themeSectionClass={themeSectionClass} />
+    <div class="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
+      <PageSections sections={pageSections} artworks={artworks} posts={posts} projects={projects} themeSectionClass={themeSectionClass} />
+    </div>
   </section>
 </SiteLayout>
 

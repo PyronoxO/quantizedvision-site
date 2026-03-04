@@ -73,11 +73,16 @@ const getExternalDisplayTitle = (title: string) => {
 };
 
 const detectPlatform = (platform: string | undefined, label: string | undefined, url: string) => {
-  if (platform) return platform.toLowerCase();
+  if (platform) {
+    const normalized = platform.toLowerCase();
+    if (normalized === "facebook" || normalized === "fb") return "facebook";
+    return normalized;
+  }
   const raw = `${label || ""} ${url}`.toLowerCase();
   if (raw.includes("instagram")) return "instagram";
   if (raw.includes("tiktok")) return "tiktok";
   if (raw.includes("youtube") || raw.includes("youtu.be")) return "youtube";
+  if (raw.includes("facebook") || raw.includes("fb.com") || raw.includes("facebook.com")) return "facebook";
   if (raw.includes("x.com") || raw.includes("twitter")) return "x";
   if (raw.includes("linkedin")) return "linkedin";
   return "link";
@@ -89,6 +94,8 @@ const platformTitle = (platform: string) =>
       ? "TikTok"
       : platform === "youtube"
         ? "YouTube"
+        : platform === "facebook"
+          ? "Facebook"
         : platform === "x"
           ? "X"
           : platform === "linkedin"
@@ -314,8 +321,8 @@ const getSectionMeta = (section: HomeSection) => {
               ? { shell: "h-14 w-14", icon: "h-6 w-6", badge: "h-9 w-9" }
               : { shell: "h-11 w-11", icon: "h-4 w-4", badge: "h-7 w-7" };
       return (
-        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
-          <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2>
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+          {section.heading ? <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2> : null}
           <div class:list={["mt-4 flex flex-wrap gap-3", alignClass]}>
             {socialLinks.map((link: any) => {
               const rawUrl = link.url || link.link || "";
@@ -330,6 +337,8 @@ const getSectionMeta = (section: HomeSection) => {
                       <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M14 3h2.4A5.6 5.6 0 0 0 20 6.6V9a8 8 0 0 1-4-1.1V14a6 6 0 1 1-6-6h.5v2.5H10a3.5 3.5 0 1 0 3.5 3.5V3z"/></svg>
                     ) : platform === "youtube" ? (
                       <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M23 12s0-3.6-.5-5.3a2.8 2.8 0 0 0-2-2C18.7 4.2 12 4.2 12 4.2s-6.7 0-8.5.5a2.8 2.8 0 0 0-2 2C1 8.4 1 12 1 12s0 3.6.5 5.3a2.8 2.8 0 0 0 2 2c1.8.5 8.5.5 8.5.5s6.7 0 8.5-.5a2.8 2.8 0 0 0 2-2C23 15.6 23 12 23 12zM10 15.5v-7l6 3.5-6 3.5z"/></svg>
+                    ) : platform === "facebook" ? (
+                      <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M22 12a10 10 0 1 0-11.6 9.9v-7h-2.3V12h2.3V9.8c0-2.3 1.3-3.6 3.5-3.6 1 0 2 .2 2 .2V8h-1.1c-1.1 0-1.4.7-1.4 1.4V12h2.4l-.4 2.9h-2v7A10 10 0 0 0 22 12z"/></svg>
                     ) : platform === "x" ? (
                       <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M18.9 2H22l-6.8 7.8L23 22h-6.4l-5-6.3L5.8 22H2.7l7.3-8.4L1 2h6.5l4.5 5.8L18.9 2z"/></svg>
                     ) : platform === "linkedin" ? (

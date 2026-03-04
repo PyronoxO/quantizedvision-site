@@ -132,7 +132,7 @@ export const homePageType = defineType({
           title: "Social Media Section",
           type: "object",
           fields: [
-            defineField({ name: "heading", title: "Heading", type: "string", validation: (rule) => rule.required() }),
+            defineField({ name: "heading", title: "Heading", type: "string" }),
             defineField({
               name: "alignment",
               title: "Alignment",
@@ -177,6 +177,7 @@ export const homePageType = defineType({
                           { title: "Instagram", value: "instagram" },
                           { title: "TikTok", value: "tiktok" },
                           { title: "YouTube", value: "youtube" },
+                          { title: "Facebook", value: "facebook" },
                           { title: "X (Twitter)", value: "x" },
                           { title: "LinkedIn", value: "linkedin" },
                           { title: "Generic Link", value: "link" },
