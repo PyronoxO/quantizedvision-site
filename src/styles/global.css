@@ -276,8 +276,13 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
   border: 0;
   border-top: 0;
   border-radius: 0;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   margin-top: 0;
   margin-bottom: 0;
+  padding-left: clamp(1.25rem, 6vw, 5.5rem);
+  padding-right: clamp(1.25rem, 6vw, 5.5rem);
   background: transparent;
   box-shadow: none;
 }
