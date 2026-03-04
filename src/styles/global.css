@@ -268,8 +268,8 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 }
 
 .qv-theme-section--compact {
-  padding-top: 1.9rem;
-  padding-bottom: 1.9rem;
+  padding-top: 2.2rem;
+  padding-bottom: 2.2rem;
 }
 
 .qv-seam-section {
@@ -286,22 +286,26 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 .qv-seam-section::after {
   content: "";
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
   pointer-events: none;
-  border-radius: inherit;
+  z-index: 0;
 }
 
 .qv-seam-section::before {
-  background:
-    linear-gradient(180deg, rgb(11 20 45 / 0), rgb(11 20 45 / 0.58) 16%, rgb(11 20 45 / 0.58) 84%, rgb(11 20 45 / 0)),
-    linear-gradient(120deg, rgb(0 217 255 / 0.08), transparent 26%, transparent 74%, rgb(255 143 110 / 0.08));
+  top: 0;
+  height: 44px;
+  background: linear-gradient(180deg, rgb(0 217 255 / 0.18), rgb(0 217 255 / 0));
+  opacity: 0.38;
 }
 
 .qv-seam-section::after {
+  bottom: 0;
+  height: 56px;
   background:
-    radial-gradient(circle at 12% 0%, rgb(0 217 255 / 0.2), transparent 34%),
-    radial-gradient(circle at 88% 100%, rgb(255 63 100 / 0.18), transparent 36%);
-  opacity: 0.36;
+    radial-gradient(circle at 12% 100%, rgb(0 217 255 / 0.18), transparent 58%),
+    radial-gradient(circle at 88% 100%, rgb(255 143 110 / 0.14), transparent 56%);
+  opacity: 0.32;
 }
 
 .qv-seam-section > * {
