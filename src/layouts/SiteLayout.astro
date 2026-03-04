@@ -207,8 +207,9 @@ const isHomeRoute = currentPath === "/";
                 target={item.openInNewTab ? "_blank" : undefined}
                 rel={item.openInNewTab ? "noopener noreferrer" : undefined}
                 data-astro-prefetch={!item.external ? "tap" : undefined}
+                data-mobile-internal={!item.external && !item.openInNewTab ? "true" : "false"}
                 class:list={[
-                  "block rounded-md px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] qv-muted hover:bg-[rgb(0_217_255_/_0.08)] hover:text-[var(--qv-text)]",
+                  "qv-mobile-nav-link block rounded-md px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] qv-muted hover:bg-[rgb(0_217_255_/_0.08)] hover:text-[var(--qv-text)]",
                   !item.external && currentPath === item.href ? "bg-[rgb(0_217_255_/_0.1)] text-[var(--qv-text)]" : "",
                 ]}
               >
@@ -247,6 +248,17 @@ const isHomeRoute = currentPath === "/";
             if (menu instanceof HTMLDetailsElement) menu.open = false;
           });
         };
+        const prefetched = new Set();
+        const prefetchRoute = (href) => {
+          if (!href || prefetched.has(href)) return;
+          prefetched.add(href);
+          const prefetchEl = document.createElement("link");
+          prefetchEl.rel = "prefetch";
+          prefetchEl.as = "document";
+          prefetchEl.href = href;
+          document.head.appendChild(prefetchEl);
+          fetch(href, { method: "GET", credentials: "same-origin" }).catch(() => {});
+        };
 
         document.addEventListener("click", (event) => {
           const target = event.target;
@@ -260,10 +272,35 @@ const isHomeRoute = currentPath === "/";
         });
 
         menus.forEach((menu) => {
+          if (menu instanceof HTMLDetailsElement) {
+            menu.addEventListener("toggle", () => {
+              if (!menu.open) return;
+              menu.querySelectorAll("a[data-mobile-internal='true']").forEach((link) => {
+                if (link instanceof HTMLAnchorElement) prefetchRoute(link.href);
+              });
+            });
+          }
           menu.querySelectorAll("a[href]").forEach((link) => {
             link.addEventListener("click", () => {
               if (menu instanceof HTMLDetailsElement) menu.open = false;
             });
+          });
+          menu.querySelectorAll("a[data-mobile-internal='true']").forEach((link) => {
+            if (!(link instanceof HTMLAnchorElement)) return;
+            link.addEventListener(
+              "pointerdown",
+              (event) => {
+                if (event.button !== 0) return;
+                event.preventDefault();
+                if (menu instanceof HTMLDetailsElement) menu.open = false;
+                link.classList.add("is-loading");
+                prefetchRoute(link.href);
+                requestAnimationFrame(() => {
+                  window.location.assign(link.href);
+                });
+              },
+              { passive: false },
+            );
           });
         });
       })();

@@ -36,8 +36,9 @@ export function getSanityClient(preview = false) {
     projectId,
     dataset,
     apiVersion,
-    // Keep CMS edits visible immediately (no CDN lag).
-    useCdn: false,
+    // Use CDN for published traffic to reduce cold-request latency.
+    // Preview still bypasses CDN for immediate draft visibility.
+    useCdn: !preview,
     token,
     perspective: preview ? "previewDrafts" : "published",
   });
