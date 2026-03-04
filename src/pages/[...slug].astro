@@ -76,14 +76,14 @@ const isAboutPage = page?.slug === "about";
         ) : null}
         <h1 class="qv-page-hero-title mt-4 max-w-5xl font-black uppercase">{page.hero?.title || page.title}</h1>
         {page.hero?.body ? <p class="mt-5 max-w-3xl qv-hero-body qv-muted">{page.hero.body}</p> : null}
-        <div class="mt-7 flex flex-wrap gap-3">
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           {page.hero?.primaryLabel && page.hero?.primaryUrl ? (
-            <a href={page.hero.primaryUrl} class="qv-btn-accent rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
+            <a href={page.hero.primaryUrl} class="qv-btn-accent qv-page-hero-btn rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
               {page.hero.primaryLabel}
             </a>
           ) : null}
           {page.hero?.secondaryLabel && page.hero?.secondaryUrl ? (
-            <a href={page.hero.secondaryUrl} class="qv-btn-soft rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
+            <a href={page.hero.secondaryUrl} class="qv-btn-soft qv-page-hero-btn rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
               {page.hero.secondaryLabel}
             </a>
           ) : null}
