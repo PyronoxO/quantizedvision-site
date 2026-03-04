@@ -283,9 +283,7 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
   margin-bottom: 0;
   padding-left: clamp(1.25rem, 6vw, 5.5rem);
   padding-right: clamp(1.25rem, 6vw, 5.5rem);
-  background:
-    linear-gradient(90deg, rgb(22 26 63 / 0.78) 0%, rgb(10 18 48 / 0.82) 52%, rgb(35 16 40 / 0.78) 100%),
-    repeating-linear-gradient(90deg, rgb(126 170 255 / 0.05) 0 1px, transparent 1px 88px);
+  background: transparent;
   box-shadow: inset 0 1px 0 rgb(0 217 255 / 0.08), inset 0 -1px 0 rgb(255 143 110 / 0.06);
 }
 
