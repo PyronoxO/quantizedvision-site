@@ -164,7 +164,7 @@ const getSectionMeta = (section: HomeSection) => {
                     ? "YouTube"
                     : "External";
               return (
-                <figure class="gallery-item qv-card qv-archive-item group relative mb-4 break-inside-avoid overflow-hidden rounded-xl" data-collection={artwork.collection || "uncategorized"}>
+                <figure class="gallery-item qv-card qv-archive-item qv-accent-tr group relative mb-4 break-inside-avoid overflow-hidden rounded-xl" data-collection={artwork.collection || "uncategorized"}>
                   <button
                     class="block w-full text-left"
                     data-lightbox-item
@@ -309,6 +309,20 @@ const getSectionMeta = (section: HomeSection) => {
       );
     }
 
+    if (section._type === "homeCtaSection") {
+      return (
+        <section id={sectionMeta.anchorId} class="qv-theme-section qv-theme-section--compact qv-seam-section">
+          <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2>
+          {section.body ? <p class="mt-3 max-w-3xl qv-muted">{section.body}</p> : null}
+          {section.buttonLabel && section.buttonUrl ? (
+            <a href={section.buttonUrl} class="qv-btn-accent mt-5 inline-flex rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
+              {section.buttonLabel}
+            </a>
+          ) : null}
+        </section>
+      );
+    }
+
     if (section._type === "homeSocialSection") {
       const socialLinks = Array.isArray(section.links) ? section.links : [];
       const alignClass = section.alignment === "center" ? "justify-center" : section.alignment === "right" ? "justify-end" : "justify-start";
@@ -321,7 +335,7 @@ const getSectionMeta = (section: HomeSection) => {
               ? { shell: "h-14 w-14", icon: "h-6 w-6", badge: "h-9 w-9" }
               : { shell: "h-11 w-11", icon: "h-4 w-4", badge: "h-7 w-7" };
       return (
-        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-seam-section", themeSectionClass]}>
           {section.heading ? <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2> : null}
           <div class:list={["mt-4 flex flex-wrap gap-3", alignClass]}>
             {socialLinks.map((link: any) => {
@@ -329,8 +343,8 @@ const getSectionMeta = (section: HomeSection) => {
               if (!rawUrl) return null;
               const platform = detectPlatform(link.platform, link.label || link.title, rawUrl);
               return (
-                <a href={rawUrl} target="_blank" rel="noopener noreferrer" title={platformTitle(platform)} class:list={["qv-btn-soft inline-flex items-center justify-center rounded-full", sizeClass.shell]}>
-                  <span class:list={["inline-flex items-center justify-center rounded-full border border-[#3e5380] bg-[#0a162f]", sizeClass.badge]}>
+                <a href={rawUrl} target="_blank" rel="noopener noreferrer" title={platformTitle(platform)} class:list={["qv-btn-soft qv-social-link inline-flex items-center justify-center rounded-full", sizeClass.shell]}>
+                  <span class:list={["qv-social-badge inline-flex items-center justify-center rounded-full border border-[#3e5380] bg-[#0a162f]", sizeClass.badge]}>
                     {platform === "instagram" ? (
                       <svg viewBox="0 0 24 24" class:list={[sizeClass.icon, "fill-current"]}><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5zM17.8 6.7a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1z"/></svg>
                     ) : platform === "tiktok" ? (
@@ -369,7 +383,7 @@ const getSectionMeta = (section: HomeSection) => {
           {section.styleVariant === "cards" ? (
             <div class="grid gap-4 md:grid-cols-3">
               {selected.map((artwork) => (
-                <a href="/gallery" class:list={["qv-slider-card overflow-hidden rounded-xl border", themeSectionClass]}>
+                <a href="/gallery" class:list={["qv-slider-card qv-accent-bl overflow-hidden rounded-xl border", themeSectionClass]}>
                   {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
                     <video src={artwork.cover} class="w-full align-middle" muted playsinline preload="metadata" />
                   ) : (
@@ -382,7 +396,7 @@ const getSectionMeta = (section: HomeSection) => {
           ) : (
             <div class="columns-1 gap-4 md:columns-2 xl:columns-3">
               {selected.map((artwork) => (
-                <a href="/gallery" class:list={["qv-archive-item mb-4 block break-inside-avoid overflow-hidden rounded-xl border", themeSectionClass]}>
+                <a href="/gallery" class:list={["qv-archive-item qv-accent-bl mb-4 block break-inside-avoid overflow-hidden rounded-xl border", themeSectionClass]}>
                   {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
                     <video src={artwork.cover} class="w-full align-middle" muted playsinline preload="metadata" />
                   ) : (
@@ -585,9 +599,9 @@ const getSectionMeta = (section: HomeSection) => {
 
     if (section._type === "homeFooterSection") {
       return (
-        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-panel rounded-2xl p-6 md:p-8", themeSectionClass]}>
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-seam-section", themeSectionClass]}>
           <p class="font-black uppercase tracking-[0.08em]">{section.brand || "Quantized Vision"}</p>
-          {section.tagline ? <p class="mt-2 qv-muted">{section.tagline}</p> : null}
+          {section.tagline ? <p class="mt-2 max-w-3xl qv-muted">{section.tagline}</p> : null}
           <div class="mt-4 flex flex-wrap gap-3 text-xs uppercase tracking-[0.12em]">
             {(section.links || []).map((link) => <a href={link.url} class="qv-btn-soft rounded-full px-3 py-1.5">{link.label}</a>)}
           </div>
