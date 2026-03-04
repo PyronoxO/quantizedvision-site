@@ -289,28 +289,7 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 
 .qv-seam-section::before,
 .qv-seam-section::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.qv-seam-section::before {
-  top: 0;
-  height: 44px;
-  background: linear-gradient(180deg, rgb(0 217 255 / 0.18), rgb(0 217 255 / 0));
-  opacity: 0.38;
-}
-
-.qv-seam-section::after {
-  bottom: 0;
-  height: 56px;
-  background:
-    radial-gradient(circle at 12% 100%, rgb(0 217 255 / 0.18), transparent 58%),
-    radial-gradient(circle at 88% 100%, rgb(255 143 110 / 0.14), transparent 56%);
-  opacity: 0.32;
+  display: none;
 }
 
 .qv-seam-section > * {
