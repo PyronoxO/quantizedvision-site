@@ -58,7 +58,7 @@ const isAboutPage = page?.slug === "about";
       <script is:inline>{`window.location.replace(${JSON.stringify(redirect?.to || "/")});`}</script>
     </section>
   ) : (
-  <section class="dynamic-template space-y-8">
+  <section class:list={["dynamic-template space-y-8", isAboutPage ? "qv-about-page" : ""]}>
     {!page ? (
       <article class="rounded-2xl border border-[#202d47] bg-[#0a1224] p-6 md:p-9">
         <h1 class="font-black uppercase tracking-[0.03em]">Page Not Found</h1>
@@ -91,7 +91,9 @@ const isAboutPage = page?.slug === "about";
       </article>
     ) : null}
 
-    <PageSections sections={pageSections} artworks={artworks} posts={posts} projects={projects} themeSectionClass={theme.section} />
+    <div class:list={isAboutPage ? "qv-about-modules" : ""}>
+      <PageSections sections={pageSections} artworks={artworks} posts={posts} projects={projects} themeSectionClass={theme.section} />
+    </div>
       </>
     )}
   </section>

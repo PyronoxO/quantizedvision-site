@@ -23,6 +23,14 @@ export interface HomeDesignSettings {
   mutedColor?: string;
   accentColor?: string;
   linkColor?: string;
+  sectionDividerOpacity?: number | string;
+  seamLeftTintOpacity?: number | string;
+  seamRightTintOpacity?: number | string;
+  seamTopEdgeOpacity?: number | string;
+  seamBottomEdgeOpacity?: number | string;
+  aboutHeroGap?: number | string;
+  aboutFirstModuleHeadingSize?: number | string;
+  aboutFirstModuleBodySize?: number | string;
 }
 
 export interface NavigationItem {

@@ -82,7 +82,15 @@ export const siteSettingsQuery = `
     textColor,
     mutedColor,
     accentColor,
-    linkColor
+    linkColor,
+    sectionDividerOpacity,
+    seamLeftTintOpacity,
+    seamRightTintOpacity,
+    seamTopEdgeOpacity,
+    seamBottomEdgeOpacity,
+    aboutHeroGap,
+    aboutFirstModuleHeadingSize,
+    aboutFirstModuleBodySize
   },
   navigation[]{
     label,
@@ -114,7 +122,15 @@ export const homePageQuery = `
     textColor,
     mutedColor,
     accentColor,
-    linkColor
+    linkColor,
+    sectionDividerOpacity,
+    seamLeftTintOpacity,
+    seamRightTintOpacity,
+    seamTopEdgeOpacity,
+    seamBottomEdgeOpacity,
+    aboutHeroGap,
+    aboutFirstModuleHeadingSize,
+    aboutFirstModuleBodySize
   },
   hero{
     eyebrow,

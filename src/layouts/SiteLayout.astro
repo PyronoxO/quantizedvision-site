@@ -49,6 +49,14 @@ const fallbackDesign: HomeDesignSettings = {
   mutedColor: "#9CA3AF",
   accentColor: "#00D9FF",
   linkColor: "#CFE6FF",
+  sectionDividerOpacity: 0.08,
+  seamLeftTintOpacity: 0.11,
+  seamRightTintOpacity: 0.14,
+  seamTopEdgeOpacity: 0.16,
+  seamBottomEdgeOpacity: 0.14,
+  aboutHeroGap: "3.4rem",
+  aboutFirstModuleHeadingSize: "2.05rem",
+  aboutFirstModuleBodySize: "1.16rem",
 };
 
 const design = { ...fallbackDesign, ...(siteSettings?.design || {}) };
@@ -62,6 +70,14 @@ const toCssSize = (value: number | string | undefined, fallback: string) => {
     const numeric = Number(trimmed);
     if (Number.isFinite(numeric)) return `${numeric}rem`;
     return trimmed;
+  }
+  return fallback;
+};
+const toCssOpacity = (value: number | string | undefined, fallback: string) => {
+  if (typeof value === "number" && Number.isFinite(value)) return String(Math.max(0, Math.min(1, value)));
+  if (typeof value === "string" && value.trim()) {
+    const numeric = Number(value.trim());
+    if (Number.isFinite(numeric)) return String(Math.max(0, Math.min(1, numeric)));
   }
   return fallback;
 };
@@ -144,6 +160,14 @@ const isHomeRoute = currentPath === "/";
       --qv-muted:${design.mutedColor};
       --qv-accent:${design.accentColor};
       --qv-link:${design.linkColor};
+      --qv-section-divider-opacity:${toCssOpacity(design.sectionDividerOpacity, "0.08")};
+      --qv-seam-left-tint-opacity:${toCssOpacity(design.seamLeftTintOpacity, "0.11")};
+      --qv-seam-right-tint-opacity:${toCssOpacity(design.seamRightTintOpacity, "0.14")};
+      --qv-seam-top-edge-opacity:${toCssOpacity(design.seamTopEdgeOpacity, "0.16")};
+      --qv-seam-bottom-edge-opacity:${toCssOpacity(design.seamBottomEdgeOpacity, "0.14")};
+      --qv-about-hero-gap:${toCssSize(design.aboutHeroGap, "3.4rem")};
+      --qv-about-first-module-heading-size:${toCssSize(design.aboutFirstModuleHeadingSize, "2.05rem")};
+      --qv-about-first-module-body-size:${toCssSize(design.aboutFirstModuleBodySize, "1.16rem")};
     `}
   >
     <div class="qv-bg"></div>
