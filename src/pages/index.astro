@@ -81,11 +81,11 @@ const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
       </div>
     ) : null}
 
-    <article class="relative flex min-h-[calc(100vh-5rem)] w-full items-center overflow-hidden">
-      <div class="mx-auto grid min-h-[90vh] w-full max-w-[1440px] items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:gap-20 lg:px-12">
-        <div class="space-y-10">
-          <div class="space-y-6">
-            <h1 class="max-w-xl font-bold leading-[0.95] tracking-[-0.02em]">
+    <article class="relative flex min-h-[calc(100svh-4.5rem)] w-full items-center overflow-hidden md:min-h-[calc(100vh-5rem)]">
+      <div class="mx-auto grid w-full max-w-[1440px] items-center gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:min-h-[90vh] lg:grid-cols-2 lg:gap-20 lg:px-12 lg:py-20">
+        <div class="space-y-7 sm:space-y-8 lg:space-y-10">
+          <div class="space-y-5 sm:space-y-6">
+            <h1 class="qv-hero-title max-w-xl font-bold leading-[0.95] tracking-[-0.02em]">
               <span class="qv-title-gradient">
                 {heroTitleLine1}
                 {heroTitleLine2 ? <><br />{heroTitleLine2}</> : null}
@@ -93,14 +93,16 @@ const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
             </h1>
             <p class="max-w-xl qv-hero-body qv-muted">{heroBody}</p>
           </div>
-          <a href={primaryUrl} class="qv-btn-accent qv-hero-btn-primary inline-flex items-center gap-3 rounded-xl px-10 py-5 leading-none">
-            {primaryLabel} <span aria-hidden="true">→</span>
-          </a>
-          {page.hero.secondaryLabel && page.hero.secondaryUrl ? (
-            <a href={page.hero.secondaryUrl} class="qv-hero-btn-secondary inline-flex rounded-xl px-8 py-4">
-              {page.hero.secondaryLabel}
+          <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <a href={primaryUrl} class="qv-btn-accent qv-hero-btn-primary inline-flex items-center gap-3 rounded-xl px-10 py-5 leading-none">
+              {primaryLabel} <span aria-hidden="true">→</span>
             </a>
-          ) : null}
+            {page.hero.secondaryLabel && page.hero.secondaryUrl ? (
+              <a href={page.hero.secondaryUrl} class="qv-hero-btn-secondary inline-flex rounded-xl px-8 py-4">
+                {page.hero.secondaryLabel}
+              </a>
+            ) : null}
+          </div>
         </div>
         <div class="relative">
           <div class="absolute inset-0 scale-110 bg-[#00d9ff]/20 blur-[120px]"></div>

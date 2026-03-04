@@ -175,7 +175,7 @@ const isHomeRoute = currentPath === "/";
     <div class="qv-anim-orb is-orange"></div>
     <div class="qv-anim-orb is-magenta"></div>
     <header class="fixed left-0 right-0 top-0 z-30 border-b border-[rgb(0_217_255_/_0.12)] bg-[#0d0d1a]/96 backdrop-blur-xl">
-      <nav class="mx-auto grid w-full max-w-[1440px] grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-5 lg:px-12">
+      <nav class="mx-auto grid w-full max-w-[1440px] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 md:px-6 md:py-5 lg:px-12">
         <a href="/" class="inline-flex items-center gap-2">
           <img src="/img/works/logo-watermark.png" alt="" class="h-9 w-9 object-contain" />
         </a>
@@ -195,6 +195,26 @@ const isHomeRoute = currentPath === "/";
             </a>
           ))}
         </div>
+        <details class="qv-mobile-nav relative justify-self-end md:hidden">
+          <summary class="qv-mobile-summary qv-btn-soft inline-flex min-h-[44px] cursor-pointer list-none items-center rounded-lg px-3 py-2 text-sm font-bold uppercase tracking-[0.08em]">
+            Menu
+          </summary>
+          <div class="absolute right-0 top-[calc(100%+0.6rem)] z-40 w-[min(82vw,320px)] rounded-xl border border-[rgb(0_217_255_/_0.25)] bg-[#091226]/95 p-2 shadow-[0_16px_36px_rgba(0,0,0,0.42)] backdrop-blur-xl">
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                target={item.openInNewTab ? "_blank" : undefined}
+                rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+                class:list={[
+                  "block rounded-md px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] qv-muted hover:bg-[rgb(0_217_255_/_0.08)] hover:text-[var(--qv-text)]",
+                  !item.external && currentPath === item.href ? "bg-[rgb(0_217_255_/_0.1)] text-[var(--qv-text)]" : "",
+                ]}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </details>
       </nav>
     </header>
     <main

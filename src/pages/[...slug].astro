@@ -74,7 +74,7 @@ const isAboutPage = page?.slug === "about";
             {page.hero.eyebrow}
           </p>
         ) : null}
-        <h1 class="mt-4 max-w-5xl font-black uppercase">{page.hero?.title || page.title}</h1>
+        <h1 class="qv-page-hero-title mt-4 max-w-5xl font-black uppercase">{page.hero?.title || page.title}</h1>
         {page.hero?.body ? <p class="mt-5 max-w-3xl qv-hero-body qv-muted">{page.hero.body}</p> : null}
         <div class="mt-7 flex flex-wrap gap-3">
           {page.hero?.primaryLabel && page.hero?.primaryUrl ? (
