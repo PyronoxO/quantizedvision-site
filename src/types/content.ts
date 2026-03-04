@@ -8,6 +8,17 @@ export interface SectionOptions {
   endAt?: string;
 }
 
+export interface ModuleStyleOverrides {
+  dividerOpacity?: number;
+  leftTintOpacity?: number;
+  rightTintOpacity?: number;
+  topEdgeOpacity?: number;
+  bottomEdgeOpacity?: number;
+  headingSize?: number;
+  bodySize?: number;
+  gapTop?: number;
+}
+
 export interface HomeDesignSettings {
   headingFont?: string;
   bodyFont?: string;
@@ -79,6 +90,7 @@ export interface HomeGallerySection {
 export interface HomeSocialSection {
   _type: "homeSocialSection";
   options?: SectionOptions;
+  style?: ModuleStyleOverrides;
   heading?: string;
   alignment?: "left" | "center" | "right";
   iconSize?: "sm" | "md" | "lg" | "xl";
@@ -148,6 +160,7 @@ export interface HomeContactSection {
 export interface HomeFooterSection {
   _type: "homeFooterSection";
   options?: SectionOptions;
+  style?: ModuleStyleOverrides;
   brand?: string;
   tagline?: string;
   links?: { label: string; url: string }[];
@@ -165,6 +178,7 @@ export interface HomeSearchSection {
 export interface HomeCtaSection {
   _type: "homeCtaSection";
   options?: SectionOptions;
+  style?: ModuleStyleOverrides;
   heading: string;
   body?: string;
   buttonLabel?: string;

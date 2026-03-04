@@ -123,6 +123,37 @@ const getSectionMeta = (section: HomeSection) => {
     anchorId: anchorId || undefined,
   };
 };
+const clamp01 = (value: unknown) => {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) return undefined;
+  return Math.max(0, Math.min(1, parsed));
+};
+const positive = (value: unknown) => {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) return undefined;
+  return Math.max(0, parsed);
+};
+const toModuleStyleVars = (section: any) => {
+  const style = section?.style || {};
+  const vars: string[] = [];
+  const dividerOpacity = clamp01(style.dividerOpacity);
+  if (dividerOpacity !== undefined) vars.push(`--qv-module-divider-opacity:${dividerOpacity};`);
+  const leftTintOpacity = clamp01(style.leftTintOpacity);
+  if (leftTintOpacity !== undefined) vars.push(`--qv-module-left-tint-opacity:${leftTintOpacity};`);
+  const rightTintOpacity = clamp01(style.rightTintOpacity);
+  if (rightTintOpacity !== undefined) vars.push(`--qv-module-right-tint-opacity:${rightTintOpacity};`);
+  const topEdgeOpacity = clamp01(style.topEdgeOpacity);
+  if (topEdgeOpacity !== undefined) vars.push(`--qv-module-top-edge-opacity:${topEdgeOpacity};`);
+  const bottomEdgeOpacity = clamp01(style.bottomEdgeOpacity);
+  if (bottomEdgeOpacity !== undefined) vars.push(`--qv-module-bottom-edge-opacity:${bottomEdgeOpacity};`);
+  const headingSize = positive(style.headingSize);
+  if (headingSize !== undefined) vars.push(`--qv-module-heading-size:${headingSize}rem;`);
+  const bodySize = positive(style.bodySize);
+  if (bodySize !== undefined) vars.push(`--qv-module-body-size:${bodySize}rem;`);
+  const gapTop = positive(style.gapTop);
+  if (gapTop !== undefined) vars.push(`--qv-module-gap-top:${gapTop}rem;`);
+  return vars.length ? vars.join(" ") : undefined;
+};
 ---
 
 {
@@ -311,9 +342,9 @@ const getSectionMeta = (section: HomeSection) => {
 
     if (section._type === "homeCtaSection") {
       return (
-        <section id={sectionMeta.anchorId} class="qv-theme-section qv-theme-section--compact qv-seam-section">
-          <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2>
-          {section.body ? <p class="mt-3 max-w-3xl qv-muted">{section.body}</p> : null}
+        <section id={sectionMeta.anchorId} class="qv-theme-section qv-theme-section--compact qv-seam-section" style={toModuleStyleVars(section)}>
+          <h2 class="qv-module-heading font-black uppercase tracking-[0.03em]">{section.heading}</h2>
+          {section.body ? <p class="qv-module-body mt-3 max-w-3xl qv-muted">{section.body}</p> : null}
           {section.buttonLabel && section.buttonUrl ? (
             <a href={section.buttonUrl} class="qv-btn-accent mt-5 inline-flex rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
               {section.buttonLabel}
@@ -335,8 +366,8 @@ const getSectionMeta = (section: HomeSection) => {
               ? { shell: "h-14 w-14", icon: "h-6 w-6", badge: "h-9 w-9" }
               : { shell: "h-11 w-11", icon: "h-4 w-4", badge: "h-7 w-7" };
       return (
-        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-seam-section", themeSectionClass]}>
-          {section.heading ? <h2 class="font-black uppercase tracking-[0.03em]">{section.heading}</h2> : null}
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-seam-section", themeSectionClass]} style={toModuleStyleVars(section)}>
+          {section.heading ? <h2 class="qv-module-heading font-black uppercase tracking-[0.03em]">{section.heading}</h2> : null}
           <div class:list={["mt-4 flex flex-wrap gap-3", alignClass]}>
             {socialLinks.map((link: any) => {
               const rawUrl = link.url || link.link || "";
@@ -599,9 +630,9 @@ const getSectionMeta = (section: HomeSection) => {
 
     if (section._type === "homeFooterSection") {
       return (
-        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-seam-section", themeSectionClass]}>
-          <p class="font-black uppercase tracking-[0.08em]">{section.brand || "Quantized Vision"}</p>
-          {section.tagline ? <p class="mt-2 max-w-3xl qv-muted">{section.tagline}</p> : null}
+        <section id={sectionMeta.anchorId} class:list={["qv-theme-section qv-theme-section--compact qv-seam-section", themeSectionClass]} style={toModuleStyleVars(section)}>
+          <p class="qv-module-heading font-black uppercase tracking-[0.08em]">{section.brand || "Quantized Vision"}</p>
+          {section.tagline ? <p class="qv-module-body mt-2 max-w-3xl qv-muted">{section.tagline}</p> : null}
           <div class="mt-4 flex flex-wrap gap-3 text-xs uppercase tracking-[0.12em]">
             {(section.links || []).map((link) => <a href={link.url} class="qv-chip rounded-full px-3 py-1.5">{link.label}</a>)}
           </div>

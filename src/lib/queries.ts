@@ -159,6 +159,16 @@ export const homePageQuery = `
       startAt,
       endAt
     },
+    style{
+      dividerOpacity,
+      leftTintOpacity,
+      rightTintOpacity,
+      topEdgeOpacity,
+      bottomEdgeOpacity,
+      headingSize,
+      bodySize,
+      gapTop
+    },
     heading,
     alignment,
     iconSize,
@@ -255,6 +265,16 @@ export const pagesQuery = `
       startAt,
       endAt
     },
+    style{
+      dividerOpacity,
+      leftTintOpacity,
+      rightTintOpacity,
+      topEdgeOpacity,
+      bottomEdgeOpacity,
+      headingSize,
+      bodySize,
+      gapTop
+    },
     heading,
     alignment,
     iconSize,
@@ -309,6 +329,16 @@ export const globalModulesQuery = `
       anchorId,
       startAt,
       endAt
+    },
+    style{
+      dividerOpacity,
+      leftTintOpacity,
+      rightTintOpacity,
+      topEdgeOpacity,
+      bottomEdgeOpacity,
+      headingSize,
+      bodySize,
+      gapTop
     },
     heading,
     alignment,

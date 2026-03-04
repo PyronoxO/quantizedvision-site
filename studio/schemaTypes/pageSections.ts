@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField } from "sanity";
+import { NumberSliderInput } from "../components/NumberSliderInput";
 
 const linkFields = [
   defineField({ name: "label", title: "Label", type: "string", validation: (rule) => rule.required() }),
@@ -41,6 +42,70 @@ const sectionOptionFields = [
   }),
 ];
 
+const seamStyleField = defineField({
+  name: "style",
+  title: "Module Style Overrides",
+  type: "object",
+  fields: [
+    defineField({
+      name: "dividerOpacity",
+      title: "Divider Opacity (0-1)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0).max(1),
+    }),
+    defineField({
+      name: "leftTintOpacity",
+      title: "Left Tint Opacity (0-1)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0).max(1),
+    }),
+    defineField({
+      name: "rightTintOpacity",
+      title: "Right Tint Opacity (0-1)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0).max(1),
+    }),
+    defineField({
+      name: "topEdgeOpacity",
+      title: "Top Edge Opacity (0-1)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0).max(1),
+    }),
+    defineField({
+      name: "bottomEdgeOpacity",
+      title: "Bottom Edge Opacity (0-1)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0).max(1),
+    }),
+    defineField({
+      name: "headingSize",
+      title: "Heading Size (rem)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0.8).max(4),
+    }),
+    defineField({
+      name: "bodySize",
+      title: "Body Size (rem)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0.7).max(2),
+    }),
+    defineField({
+      name: "gapTop",
+      title: "Top Gap (rem)",
+      type: "number",
+      components: { input: NumberSliderInput },
+      validation: (rule) => rule.min(0).max(8),
+    }),
+  ],
+});
+
 export const pageSectionArrayOf = [
   defineArrayMember({
     name: "homeGallerySection",
@@ -82,6 +147,7 @@ export const pageSectionArrayOf = [
       defineField({ name: "body", title: "Body", type: "text", rows: 3 }),
       defineField({ name: "buttonLabel", title: "Button Label", type: "string" }),
       defineField({ name: "buttonUrl", title: "Button URL", type: "string" }),
+      seamStyleField,
       defineField({
         name: "accent",
         title: "Accent",
@@ -198,6 +264,7 @@ export const pageSectionArrayOf = [
         ],
         validation: (rule) => rule.min(1),
       }),
+      seamStyleField,
     ],
     preview: {
       select: { title: "heading" },
@@ -350,6 +417,7 @@ export const pageSectionArrayOf = [
       ...sectionOptionFields,
       defineField({ name: "brand", title: "Brand", type: "string" }),
       defineField({ name: "tagline", title: "Tagline", type: "string" }),
+      seamStyleField,
       defineField({
         name: "links",
         title: "Footer Links",
