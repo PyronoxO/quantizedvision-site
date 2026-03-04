@@ -186,6 +186,22 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
   content: "";
 }
 
+.qv-mobile-nav {
+  z-index: 121;
+}
+
+.qv-mobile-nav .qv-mobile-summary {
+  position: relative;
+  z-index: 122;
+  touch-action: manipulation;
+}
+
+.qv-mobile-nav .qv-mobile-menu-panel,
+.qv-mobile-nav .qv-mobile-menu-panel a {
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
 .qv-title-gradient {
   background-image: linear-gradient(90deg, #4ddfff 0%, #9feaff 45%, #ff8f6e 100%);
   -webkit-background-clip: text;

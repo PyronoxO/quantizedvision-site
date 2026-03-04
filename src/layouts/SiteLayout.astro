@@ -199,7 +199,7 @@ const isHomeRoute = currentPath === "/";
           <summary class="qv-mobile-summary qv-btn-soft inline-flex min-h-[44px] cursor-pointer list-none items-center rounded-lg px-3 py-2 text-sm font-bold uppercase tracking-[0.08em]">
             Menu
           </summary>
-          <div class="absolute right-0 top-[calc(100%+0.6rem)] z-40 w-[min(82vw,320px)] rounded-xl border border-[rgb(0_217_255_/_0.25)] bg-[#091226]/95 p-2 shadow-[0_16px_36px_rgba(0,0,0,0.42)] backdrop-blur-xl">
+          <div class="qv-mobile-menu-panel fixed left-3 right-3 top-[4.6rem] z-[120] rounded-xl border border-[rgb(0_217_255_/_0.25)] bg-[#091226]/95 p-2 shadow-[0_16px_36px_rgba(0,0,0,0.42)] backdrop-blur-xl">
             {navItems.map((item) => (
               <a
                 href={item.href}
