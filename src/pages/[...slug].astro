@@ -36,6 +36,7 @@ const hasHeroContent = Boolean(
   (page?.hero?.secondaryLabel && page?.hero?.secondaryUrl),
 );
 const showPageHero = hasHeroContent || pageSections.length === 0;
+const isAboutPage = page?.slug === "about";
 ---
 
 <SiteLayout
@@ -67,7 +68,7 @@ const showPageHero = hasHeroContent || pageSections.length === 0;
     ) : (
       <>
     {showPageHero ? (
-      <article class="qv-page-hero rounded-2xl p-6 md:p-9 md:py-12">
+      <article class:list={[isAboutPage ? "p-2 md:p-3 md:py-6" : "qv-page-hero rounded-2xl p-6 md:p-9 md:py-12"]}>
         {page.hero?.eyebrow ? (
           <p class="qv-eyebrow inline-flex rounded-full border px-3 py-1 text-xs uppercase tracking-[0.16em]">
             {page.hero.eyebrow}
