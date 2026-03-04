@@ -254,9 +254,9 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 .qv-theme-section {
   position: relative;
   overflow: hidden;
-  padding-top: 6rem;
-  padding-bottom: 6rem;
-  border-top: 1px solid rgb(0 217 255 / 0.2);
+  padding-top: 4.75rem;
+  padding-bottom: 4.75rem;
+  border-top: 1px solid rgb(0 217 255 / 0.14);
 }
 
 .qv-theme-section::before {
@@ -268,8 +268,8 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 }
 
 .qv-theme-section--compact {
-  padding-top: 1.6rem;
-  padding-bottom: 1.6rem;
+  padding-top: 1.9rem;
+  padding-bottom: 1.9rem;
 }
 
 .qv-seam-section {
@@ -286,20 +286,22 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 .qv-seam-section::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
+  inset: 0;
   pointer-events: none;
-  background: linear-gradient(90deg, rgb(0 217 255 / 0.02), rgb(0 217 255 / 0.35), rgb(233 69 96 / 0.25), rgb(0 217 255 / 0.02));
+  border-radius: inherit;
 }
 
 .qv-seam-section::before {
-  top: 0;
+  background:
+    linear-gradient(180deg, rgb(11 20 45 / 0), rgb(11 20 45 / 0.58) 16%, rgb(11 20 45 / 0.58) 84%, rgb(11 20 45 / 0)),
+    linear-gradient(120deg, rgb(0 217 255 / 0.08), transparent 26%, transparent 74%, rgb(255 143 110 / 0.08));
 }
 
 .qv-seam-section::after {
-  bottom: 0;
-  opacity: 0.7;
+  background:
+    radial-gradient(circle at 12% 0%, rgb(0 217 255 / 0.2), transparent 34%),
+    radial-gradient(circle at 88% 100%, rgb(255 63 100 / 0.18), transparent 36%);
+  opacity: 0.36;
 }
 
 .qv-seam-section > * {
@@ -308,8 +310,8 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 }
 
 .qv-seam-section {
-  padding-top: 2.35rem;
-  padding-bottom: 2.35rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .qv-panel {
@@ -345,9 +347,9 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 .qv-slider-card {
   position: relative;
   isolation: isolate;
-  border: 1px solid rgb(0 217 255 / 0.42);
+  border: 1px solid rgb(0 217 255 / 0.32);
   background: linear-gradient(180deg, rgb(7 16 38 / 0.9), rgb(7 14 32 / 0.82));
-  box-shadow: 0 10px 24px rgb(0 0 0 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.02);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.24), inset 0 1px 0 rgb(255 255 255 / 0.02);
   transition: transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
 }
 
@@ -366,14 +368,14 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 
 .qv-accent-tr::before {
   background:
-    linear-gradient(#ff8a52, #ff8a52) right top / 72px 3px no-repeat,
-    linear-gradient(#ff8a52, #ff8a52) right top / 3px 72px no-repeat;
+    linear-gradient(#ff8a52, #ff8a52) right top / 64px 2px no-repeat,
+    linear-gradient(#ff8a52, #ff8a52) right top / 2px 64px no-repeat;
 }
 
 .qv-accent-bl::before {
   background:
-    linear-gradient(#ff3f64, #ff3f64) left bottom / 72px 3px no-repeat,
-    linear-gradient(#ff3f64, #ff3f64) left bottom / 3px 72px no-repeat;
+    linear-gradient(#ff3f64, #ff3f64) left bottom / 64px 2px no-repeat,
+    linear-gradient(#ff3f64, #ff3f64) left bottom / 2px 64px no-repeat;
 }
 
 .qv-archive-item::after,
@@ -394,24 +396,24 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 
 .qv-archive-item:hover,
 .qv-archive-item:focus-within {
-  transform: translateY(-4px);
-  border-color: rgb(0 217 255 / 0.8);
+  transform: translateY(-3px);
+  border-color: rgb(0 217 255 / 0.72);
   box-shadow:
-    0 24px 44px rgb(0 0 0 / 0.42),
-    0 0 28px rgb(0 217 255 / 0.35),
-    0 0 34px rgb(255 138 82 / 0.18),
-    0 0 34px rgb(255 63 100 / 0.16);
+    0 20px 40px rgb(0 0 0 / 0.38),
+    0 0 24px rgb(0 217 255 / 0.3),
+    0 0 28px rgb(255 138 82 / 0.16),
+    0 0 28px rgb(255 63 100 / 0.14);
 }
 
 .qv-slider-card:hover,
 .qv-slider-card:focus-within {
-  transform: translateY(-3px);
-  border-color: rgb(0 217 255 / 0.74);
+  transform: translateY(-2px);
+  border-color: rgb(0 217 255 / 0.68);
   box-shadow:
-    0 20px 38px rgb(0 0 0 / 0.38),
-    0 0 22px rgb(0 217 255 / 0.3),
-    0 0 26px rgb(255 138 82 / 0.14),
-    0 0 26px rgb(255 63 100 / 0.14);
+    0 18px 34px rgb(0 0 0 / 0.34),
+    0 0 18px rgb(0 217 255 / 0.25),
+    0 0 20px rgb(255 138 82 / 0.12),
+    0 0 20px rgb(255 63 100 / 0.12);
 }
 
 .qv-archive-item:hover::after,
@@ -508,12 +510,14 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 }
 
 .qv-btn-soft {
-  border: 1px solid rgb(0 217 255 / 0.25);
-  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(0 217 255 / 0.3);
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.03));
   color: var(--qv-text);
 }
 
 .qv-social-link {
+  border: 1px solid rgb(0 217 255 / 0.28);
+  background: rgb(255 255 255 / 0.02);
   transition: border-color 220ms ease, box-shadow 260ms ease, transform 220ms ease, background-color 220ms ease;
 }
 
@@ -537,9 +541,17 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
 }
 
 .qv-chip {
-  border: 1px solid rgb(0 217 255 / 0.22);
-  background: rgb(255 255 255 / 0.05);
-  color: #cfe6ff;
+  border: 1px solid rgb(0 217 255 / 0.28);
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.035));
+  color: #d6e8ff;
+  transition: border-color 200ms ease, box-shadow 240ms ease, color 200ms ease;
+}
+
+.qv-chip:hover,
+.qv-chip:focus-visible {
+  border-color: rgb(0 217 255 / 0.56);
+  color: #f1f7ff;
+  box-shadow: 0 0 16px rgb(0 217 255 / 0.22);
 }
 
 .qv-chip.is-active {
