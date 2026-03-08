@@ -84,12 +84,13 @@ const bodyLines = toParagraphs(post?.body || "");
                 <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.4l-5-6.3L5.8 22H2.7l7.3-8.4L1 2h6.5l4.5 5.8L18.9 2z"/></svg>
               </a>
               <a
-                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}`}
+                href="https://www.linkedin.com/feed/"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-copy-url={postUrl}
                 class="qv-chip inline-flex h-12 w-12 items-center justify-center rounded-full"
                 aria-label="Share on LinkedIn"
-                title="Share on LinkedIn"
+                title="LinkedIn (copies link)"
               >
                 <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current"><path d="M4.98 3.5A2.5 2.5 0 1 1 2.5 6a2.5 2.5 0 0 1 2.48-2.5zM3 8h4v13H3zM9 8h3.8v1.8h.1A4.2 4.2 0 0 1 16.7 8c4 0 4.8 2.7 4.8 6.1V21h-4v-6c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H9z"/></svg>
               </a>
