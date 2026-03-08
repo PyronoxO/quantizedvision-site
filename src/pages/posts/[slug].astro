@@ -8,7 +8,7 @@ const preview = Astro.url.searchParams.get("preview") === "1";
 const slug = Astro.params.slug || "";
 const posts = await getPosts({ preview });
 const post = posts.find((item) => item.slug === slug);
-const postUrl = Astro.url.href;
+const postUrl = post ? new URL(`/posts/${post.slug}`, Astro.url.origin).toString() : Astro.url.href;
 const shareText = post ? `${post.title} — Quantized Vision` : "Quantized Vision post";
 const encodedUrl = encodeURIComponent(postUrl);
 const encodedText = encodeURIComponent(shareText);
@@ -35,6 +35,10 @@ const bodyLines = toParagraphs(post?.body || "");
 <SiteLayout
   title={`${post?.title || "Post"} | Quantized Vision`}
   description={post?.excerpt || "Quantized Vision post."}
+  canonicalUrl={postUrl}
+  ogTitle={post?.title}
+  ogDescription={post?.excerpt}
+  ogImage={post?.cover}
 >
   <section class="dynamic-template mx-auto max-w-5xl space-y-5">
     {!post ? (
