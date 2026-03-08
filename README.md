@@ -53,6 +53,7 @@ All commands are run from the root of the project, from a terminal:
 | `npm run media:prepare`   | Watermark media from `public/img/raw` to `public/img/works` |
 | `npm run studio:dev`      | Run Sanity Studio locally (`http://127.0.0.1:3333`) |
 | `npm run studio:build`    | Build Sanity Studio                               |
+| `npm run cms:import-news` | Import AI/tech news feed items into Sanity `Post` docs |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
@@ -66,6 +67,11 @@ All commands are run from the root of the project, from a terminal:
 ## Sanity CMS
 
 Setup steps are documented in `docs/sanity-setup.md`.
+
+### News Import
+
+- Run `npm run cms:import-news` to fetch AI/technology RSS feeds and upsert them as Sanity `Post` documents.
+- Optional: set `NEWS_IMPORT_MAX=<number>` to cap the number of imported items per run.
 
 ## 👀 Want to learn more?
 

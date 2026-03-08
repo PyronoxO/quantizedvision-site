@@ -277,6 +277,7 @@ const toModuleStyleVars = (section: any) => {
           ) : (
             <div class="grid gap-4 md:grid-cols-2">
               {selected.map((post, index) => (
+                <a href={`/posts/${post.slug}`} class="block">
                 <article class="qv-card qv-slider-card space-y-2 overflow-hidden rounded-xl">
                   {post.cover ? <img src={post.cover} alt={post.title} class="h-48 w-full object-cover" loading="lazy" /> : null}
                   <div class="space-y-2 p-5">
@@ -291,6 +292,7 @@ const toModuleStyleVars = (section: any) => {
                     {post.featured ? <p class="inline-flex rounded-full border border-[#526ba3] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#dbe8ff]">Featured</p> : null}
                   </div>
                 </article>
+                </a>
               ))}
             </div>
           )}
@@ -516,7 +518,8 @@ const toModuleStyleVars = (section: any) => {
             <button data-slider-next={`posts-${sectionIndex}`} class="qv-overlay-btn absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded px-2 py-1">›</button>
             <div class="qv-scroll-row flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2" data-slider-track={`posts-${sectionIndex}`}>
               {selected.map((post) => (
-                <article class:list={["qv-slider-card min-w-[290px] snap-start overflow-hidden rounded-xl border md:min-w-[340px]", themeSectionClass]}>
+                <a href={`/posts/${post.slug}`} class:list={["block min-w-[290px] snap-start md:min-w-[340px]"]}>
+                <article class:list={["qv-slider-card overflow-hidden rounded-xl border", themeSectionClass]}>
                   {post.cover ? <img src={post.cover} alt={post.title} class="h-44 w-full object-cover" loading="lazy" /> : null}
                   <div class="space-y-2 p-4">
                     <p class="text-xs uppercase tracking-[0.1em] qv-muted">{post.date}</p>
@@ -528,6 +531,7 @@ const toModuleStyleVars = (section: any) => {
                     {post.featured ? <p class="inline-flex rounded-full border border-[#526ba3] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#dbe8ff]">Featured</p> : null}
                   </div>
                 </article>
+                </a>
               ))}
             </div>
           </div>

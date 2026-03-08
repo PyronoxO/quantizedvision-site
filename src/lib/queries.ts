@@ -52,10 +52,14 @@ export const noteQuery = `
   "slug": slug.current,
   date,
   excerpt,
+  body,
   featured,
   workflowStatus,
   readTimeMinutes,
+  sourceUrl,
+  sourceId,
   "authorRef": authorRef->{name, "slug": slug.current},
+  "sourceNewsRef": sourceNewsRef->{_id, sourceId, sourceUrl, status},
   "tagRefs": tagRefs[]->{title, "slug": slug.current},
   "cover": cover{
     asset->{

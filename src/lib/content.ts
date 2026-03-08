@@ -133,6 +133,8 @@ function mapPost(item: SanityPost): Post {
     slug: item.slug,
     date: item.date,
     excerpt: item.excerpt,
+    body: item.body,
+    sourceUrl: item.sourceUrl,
     tags,
     cover: sanityImageUrl(item.cover) || item.cover?.asset?.url || undefined,
     featured: Boolean(item.featured),

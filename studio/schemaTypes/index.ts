@@ -9,6 +9,7 @@ import { redirectType } from "./redirectType";
 import { siteSettingsType } from "./siteSettingsType";
 import { pageType } from "./pageType";
 import { globalModuleType } from "./globalModuleType";
+import { sourceNewsItemType } from "./sourceNewsItemType";
 
 export const schemaTypes = [
   artworkType,
@@ -21,5 +22,6 @@ export const schemaTypes = [
   redirectType,
   pageType,
   globalModuleType,
+  sourceNewsItemType,
   siteSettingsType,
 ];

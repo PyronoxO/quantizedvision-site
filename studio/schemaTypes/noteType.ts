@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { RegenerateCoverImageInput } from "../components/RegenerateCoverImageInput";
 
 export const noteType = defineType({
   name: "note",
@@ -20,8 +21,41 @@ export const noteType = defineType({
       group: "main",
     }),
     defineField({ name: "date", title: "Date", type: "date", validation: (rule) => rule.required(), group: "main" }),
-    defineField({ name: "cover", title: "Preview Image", type: "image", options: { hotspot: true }, group: "main" }),
+    defineField({
+      name: "cover",
+      title: "Preview Image",
+      type: "image",
+      options: { hotspot: true },
+      components: { input: RegenerateCoverImageInput },
+      group: "main",
+    }),
     defineField({ name: "excerpt", title: "Excerpt", type: "text", rows: 4, validation: (rule) => rule.required(), group: "main" }),
+    defineField({
+      name: "body",
+      title: "Body",
+      type: "text",
+      rows: 12,
+      group: "main",
+    }),
+    defineField({
+      name: "sourceUrl",
+      title: "Source URL",
+      type: "url",
+      group: "editorial",
+    }),
+    defineField({
+      name: "sourceId",
+      title: "Source ID",
+      type: "string",
+      group: "editorial",
+    }),
+    defineField({
+      name: "sourceNewsRef",
+      title: "Source Queue Item",
+      type: "reference",
+      to: [{ type: "sourceNewsItem" }],
+      group: "editorial",
+    }),
     defineField({
       name: "authorRef",
       title: "Author",

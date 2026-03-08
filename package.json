@@ -9,6 +9,7 @@
     "astro": "astro",
     "media:prepare": "node scripts/prepare-media.mjs",
     "cms:migrate-legacy-home": "npx sanity exec scripts/migrateLegacyHomeToPage.cjs --with-user-token --working-dir ./studio",
+    "cms:import-news": "npx sanity exec scripts/importAiTechNews.cjs --with-user-token --working-dir ./studio",
     "studio:dev": "npm --prefix ./studio run dev",
     "studio:build": "npm --prefix ./studio run build"
   },

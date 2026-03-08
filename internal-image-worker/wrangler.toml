@@ -1,0 +1,11 @@
+name = "qv-internal-image-worker"
+main = "src/index.ts"
+compatibility_date = "2026-03-08"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "NEWS_COVERS_KV"
+id = "a2823a5df2b940dc92add4196e115f07"
+
+[ai]
+binding = "AI"

@@ -279,6 +279,8 @@ export interface Post {
   slug: string;
   date: string;
   excerpt: string;
+  body?: string;
+  sourceUrl?: string;
   tags: string[];
   cover?: string;
   featured?: boolean;

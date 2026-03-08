@@ -1,9 +1,18 @@
 import type { StructureResolver } from "sanity/structure";
+import { NewsApprovalPane } from "./components/NewsApprovalPane";
+import { NewsImportPane } from "./components/NewsImportPane";
+import { BulkPublishPane } from "./components/BulkPublishPane";
 
 export const structure: StructureResolver = (S) =>
   S.list()
     .title("Quantized Vision")
     .items([
+      S.listItem()
+        .title("Approval Board")
+        .child(S.component(NewsApprovalPane).title("Approval Board")),
+      S.listItem()
+        .title("News Importer")
+        .child(S.component(NewsImportPane).title("News Importer")),
       S.listItem()
         .title("Pages")
         .child(
@@ -37,7 +46,56 @@ export const structure: StructureResolver = (S) =>
             .items([
               S.documentTypeListItem("artwork").title("Artwork"),
               S.documentTypeListItem("project").title("Projects"),
-              S.documentTypeListItem("note").title("Posts"),
+              S.listItem()
+                .title("Posts")
+                .child(
+                  S.list()
+                    .title("Posts")
+                    .items([
+                      S.listItem()
+                        .title("All Posts")
+                        .child(S.documentTypeList("note").title("All Posts")),
+                      S.listItem()
+                        .title("Draft Posts")
+                        .child(
+                          S.documentTypeList("note")
+                            .title("Draft Posts")
+                            .filter('_type == "note" && workflowStatus == "draft"')
+                        ),
+                      S.listItem()
+                        .title("Review Posts")
+                        .child(
+                          S.documentTypeList("note")
+                            .title("Review Posts")
+                            .filter('_type == "note" && workflowStatus == "review"')
+                        ),
+                      S.listItem()
+                        .title("Bulk Publish")
+                        .child(S.component(BulkPublishPane).title("Bulk Publish")),
+                    ])
+                ),
+              S.listItem()
+                .title("News Queue")
+                .child(
+                  S.list()
+                    .title("News Queue")
+                    .items([
+                      S.listItem()
+                        .title("Active Queue")
+                        .child(
+                          S.documentTypeList("sourceNewsItem")
+                            .title("Active Queue")
+                            .filter('_type == "sourceNewsItem" && (!defined(status) || status != "archived")')
+                        ),
+                      S.listItem()
+                        .title("Archived Queue")
+                        .child(
+                          S.documentTypeList("sourceNewsItem")
+                            .title("Archived Queue")
+                            .filter('_type == "sourceNewsItem" && status == "archived"')
+                        ),
+                    ])
+                ),
             ])
         ),
       S.listItem()
@@ -63,7 +121,20 @@ export const structure: StructureResolver = (S) =>
         ),
       ...S.documentTypeListItems().filter(
         (item) =>
-          !["artwork", "project", "note", "collection", "category", "tag", "author", "redirect", "page", "globalModule", "siteSettings"].includes(
+          ![
+            "artwork",
+            "project",
+            "note",
+            "sourceNewsItem",
+            "collection",
+            "category",
+            "tag",
+            "author",
+            "redirect",
+            "page",
+            "globalModule",
+            "siteSettings",
+          ].includes(
             item.getId() || ""
           )
       ),
