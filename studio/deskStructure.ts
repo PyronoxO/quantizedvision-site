@@ -2,6 +2,7 @@ import type { StructureResolver } from "sanity/structure";
 import { NewsApprovalPane } from "./components/NewsApprovalPane";
 import { NewsImportPane } from "./components/NewsImportPane";
 import { BulkPublishPane } from "./components/BulkPublishPane";
+import { BulkOperationsPane } from "./components/BulkOperationsPane";
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -10,6 +11,9 @@ export const structure: StructureResolver = (S) =>
       S.listItem()
         .title("Approval Board")
         .child(S.component(NewsApprovalPane).title("Approval Board")),
+      S.listItem()
+        .title("Bulk Operations")
+        .child(S.component(BulkOperationsPane).title("Bulk Operations")),
       S.listItem()
         .title("News Importer")
         .child(S.component(NewsImportPane).title("News Importer")),
