@@ -8,6 +8,16 @@ const preview = Astro.url.searchParams.get("preview") === "1";
 const slug = Astro.params.slug || "";
 const posts = await getPosts({ preview });
 const post = posts.find((item) => item.slug === slug);
+if (!post) {
+  const suffixMatch = slug.match(/-([a-f0-9]{6})$/i);
+  const suffix = suffixMatch?.[1]?.toLowerCase();
+  if (suffix) {
+    const suffixMatchPost = posts.find((item) => item.slug.toLowerCase().endsWith(`-${suffix}`));
+    if (suffixMatchPost) {
+      return Astro.redirect(`/posts/${suffixMatchPost.slug}`, 301);
+    }
+  }
+}
 const publicSiteUrl = (import.meta.env.PUBLIC_SITE_URL || "").trim();
 const shareBase = publicSiteUrl || Astro.url.origin;
 const postUrl = post ? new URL(`/posts/${post.slug}`, shareBase).toString() : Astro.url.href;
