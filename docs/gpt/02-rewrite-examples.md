@@ -9,10 +9,10 @@ Better rewrite:
 
 ## Example 2
 Raw:
-- "Researchers introduced a new model that improves image generation quality."
+- "Researchers introduced a new model that improves output quality."
 
 Better rewrite:
-- "A new research model is pushing image generation quality forward, with cleaner detail and fewer visual artifacts. For creative teams, that means less post-fix work and faster concept iteration."
+- "A new research model is showing better output quality, with cleaner results and more consistent behavior. For teams shipping AI features, that can reduce rework and speed up iteration."
 
 ## Example 3
 Raw:

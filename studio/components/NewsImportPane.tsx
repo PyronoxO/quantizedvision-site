@@ -7,6 +7,14 @@ type StudioEnv = {
   SANITY_STUDIO_COVER_WORKER_URL?: string;
   SANITY_STUDIO_COVER_WORKER_TOKEN?: string;
 };
+type ValidationResult = {
+  ok: boolean;
+  rowCount: number;
+  eligibleCount: number;
+  missingColumns: string[];
+  invalidRows: number;
+  duplicateSourceIds: string[];
+};
 
 function parseCsvRfc4180(text: string): { header: string[]; rows: CsvRow[] } {
   const allRows: string[][] = [];
@@ -111,12 +119,48 @@ function buildCoverPrompt(rewriteTitle: string, rewriteExcerpt: string, rewriteB
   ].join(" ");
 }
 
+function validateCsvContent(header: string[], rows: CsvRow[]): ValidationResult {
+  const required = ["sourceId", "rewriteTitle", "rewriteExcerpt", "rewriteBody", "approval"];
+  const missingColumns = required.filter((k) => !header.includes(k));
+  const seen = new Set<string>();
+  const duplicate = new Set<string>();
+  let invalidRows = 0;
+  let eligibleCount = 0;
+
+  for (const row of rows) {
+    const sourceId = String(row.sourceId || "").trim();
+    const rewriteTitle = String(row.rewriteTitle || "").trim();
+    const rewriteExcerpt = String(row.rewriteExcerpt || "").trim();
+    const rewriteBody = String(row.rewriteBody || "").replace(/\s+/g, " ").trim();
+    const approval = String(row.approval || "").trim().toLowerCase();
+
+    if (!sourceId || !rewriteTitle || !rewriteExcerpt || !rewriteBody || approval !== "approved") {
+      invalidRows += 1;
+      continue;
+    }
+    eligibleCount += 1;
+    if (seen.has(sourceId)) duplicate.add(sourceId);
+    seen.add(sourceId);
+  }
+
+  const ok = missingColumns.length === 0 && rows.length > 0 && eligibleCount > 0;
+  return {
+    ok,
+    rowCount: rows.length,
+    eligibleCount,
+    missingColumns,
+    invalidRows,
+    duplicateSourceIds: Array.from(duplicate),
+  };
+}
+
 export function NewsImportPane() {
   const client = useClient({ apiVersion: "2024-01-01" });
   const [file, setFile] = useState<File | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [summary, setSummary] = useState<{ created: number; updated: number; skipped: number } | null>(null);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
 
   const env = import.meta.env as unknown as StudioEnv;
   const workerUrl = useMemo(() => (env.SANITY_STUDIO_COVER_WORKER_URL || "").trim(), [env.SANITY_STUDIO_COVER_WORKER_URL]);
@@ -127,6 +171,25 @@ export function NewsImportPane() {
 
   const pushLog = (line: string) => setLogs((prev) => [...prev, line]);
 
+  const runValidation = async () => {
+    if (!file) return;
+    try {
+      const raw = await file.text();
+      const { header, rows } = parseCsvRfc4180(raw);
+      const result = validateCsvContent(header, rows);
+      setValidation(result);
+    } catch {
+      setValidation({
+        ok: false,
+        rowCount: 0,
+        eligibleCount: 0,
+        missingColumns: ["Unable to parse CSV"],
+        invalidRows: 0,
+        duplicateSourceIds: [],
+      });
+    }
+  };
+
   const runImport = async () => {
     if (!file) return;
     setIsRunning(true);
@@ -136,10 +199,17 @@ export function NewsImportPane() {
     try {
       const raw = await file.text();
       const { header, rows } = parseCsvRfc4180(raw);
-      const required = ["sourceId", "rewriteTitle", "rewriteExcerpt", "rewriteBody", "approval"];
-      const missing = required.filter((k) => !header.includes(k));
-      if (missing.length) {
-        throw new Error(`CSV missing required columns: ${missing.join(", ")}`);
+      const csvValidation = validateCsvContent(header, rows);
+      setValidation(csvValidation);
+      if (!csvValidation.ok) {
+        throw new Error(
+          csvValidation.missingColumns.length
+            ? `CSV missing required columns: ${csvValidation.missingColumns.join(", ")}`
+            : "CSV validation failed: no importable approved rows found.",
+        );
+      }
+      if (csvValidation.duplicateSourceIds.length) {
+        pushLog(`Warning: duplicate sourceId values detected (${csvValidation.duplicateSourceIds.length}). Later rows may overwrite earlier drafts.`);
       }
 
       let created = 0;
@@ -261,12 +331,38 @@ export function NewsImportPane() {
         <input
           type="file"
           accept=".csv,text/csv"
-          onChange={(event) => setFile(event.target.files?.[0] || null)}
+          onChange={(event) => {
+            setFile(event.target.files?.[0] || null);
+            setValidation(null);
+            setSummary(null);
+            setLogs([]);
+          }}
           disabled={isRunning}
         />
         <Flex gap={3}>
-          <Button text={isRunning ? "Importing..." : "Run Import"} tone="primary" onClick={runImport} disabled={!file || isRunning} />
+          <Button text="Validate CSV (Dry Run)" mode="ghost" onClick={runValidation} disabled={!file || isRunning} />
+          <Button
+            text={isRunning ? "Importing..." : "Run Import"}
+            tone="primary"
+            onClick={runImport}
+            disabled={!file || isRunning || Boolean(validation && !validation.ok)}
+          />
         </Flex>
+        {validation && (
+          <Card tone={validation.ok ? "positive" : "critical"} padding={3} radius={2}>
+            <Stack space={2}>
+              <Text size={2}>
+                Rows: {validation.rowCount} | Importable approved: {validation.eligibleCount} | Invalid/Skipped candidates: {validation.invalidRows}
+              </Text>
+              {validation.missingColumns.length > 0 ? (
+                <Text size={1}>Missing columns: {validation.missingColumns.join(", ")}</Text>
+              ) : null}
+              {validation.duplicateSourceIds.length > 0 ? (
+                <Text size={1}>Duplicate sourceId warning: {validation.duplicateSourceIds.join(", ")}</Text>
+              ) : null}
+            </Stack>
+          </Card>
+        )}
         {summary && (
           <Card tone="positive" padding={3} radius={2}>
             <Text size={2}>

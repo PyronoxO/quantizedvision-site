@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Box, Button, Card, Checkbox, Code, Flex, Grid, Heading, Inline, Stack, Text } from "@sanity/ui";
+import { Button, Card, Checkbox, Code, Flex, Grid, Heading, Inline, Stack, Text } from "@sanity/ui";
 import { useClient } from "sanity";
 
 type ArtworkRow = {
@@ -81,10 +81,6 @@ function baseId(id: string): string {
   return id.replace(/^drafts\./, "");
 }
 
-function pickRows(rows: string[], selected: Set<string>) {
-  return rows.filter((id) => selected.has(id));
-}
-
 export function BulkOperationsPane() {
   const client = useClient({ apiVersion: "2024-01-01" });
   const [artworks, setArtworks] = useState<ArtworkRow[]>([]);
@@ -141,6 +137,10 @@ export function BulkOperationsPane() {
   const noteIds = useMemo(() => notes.map((row) => row._id), [notes]);
   const selectedArtworks = useMemo(() => artworks.filter((row) => selectedArtworkIds.has(row._id)), [artworks, selectedArtworkIds]);
   const selectedNotes = useMemo(() => notes.filter((row) => selectedNoteIds.has(row._id)), [notes, selectedNoteIds]);
+  const artworkMissingCoverIds = useMemo(
+    () => artworks.filter((row) => !row.cover?.asset?._ref).map((row) => row._id),
+    [artworks],
+  );
 
   const toggleArtwork = (id: string) =>
     setSelectedArtworkIds((prev) => {
@@ -159,6 +159,7 @@ export function BulkOperationsPane() {
     });
 
   const setAllArtworks = (checked: boolean) => setSelectedArtworkIds(checked ? new Set(artworkIds) : new Set());
+  const selectMissingArtworkCovers = () => setSelectedArtworkIds(new Set(artworkMissingCoverIds));
   const setAllNotes = (checked: boolean) => setSelectedNoteIds(checked ? new Set(noteIds) : new Set());
 
   const runFetchMetadata = async (scope: "selected" | "all") => {
@@ -292,6 +293,14 @@ export function BulkOperationsPane() {
               <Inline space={3}>
                 <Checkbox checked={artworkIds.length > 0 && selectedArtworkIds.size === artworkIds.length} onChange={(e) => setAllArtworks(e.currentTarget.checked)} />
                 <Text size={1}>Select all external artworks ({artworkIds.length})</Text>
+              </Inline>
+              <Inline space={2}>
+                <Button
+                  text={`Select Missing Cover Only (${artworkMissingCoverIds.length})`}
+                  mode="ghost"
+                  onClick={selectMissingArtworkCovers}
+                  disabled={isBusy || artworkMissingCoverIds.length === 0}
+                />
               </Inline>
               <Card padding={2} border radius={2} style={{ maxHeight: 260, overflow: "auto" }}>
                 <Stack space={2}>
