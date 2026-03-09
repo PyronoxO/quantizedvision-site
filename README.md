@@ -1,3 +1,32 @@
+# Quantized Vision Site
+
+## Current Status (March 9, 2026)
+
+- Homepage featured gallery fixed:
+  - Long external social captions are trimmed for card titles.
+  - Card links now open the correct target:
+    - external artwork -> source URL
+    - internal artwork -> `/gallery/[slug]`
+  - Card images now fail safely:
+    - prefers local Sanity `cover`
+    - falls back to external thumbnail URL
+    - falls back to local static image if remote image fails
+    - retries external thumbnail in background and restores automatically if source recovers
+- Sanity `Fetch metadata` action improved:
+  - Pulls oEmbed metadata
+  - Saves thumbnail URL
+  - Uploads a local Sanity image asset and sets `cover`, so expiring CDN links stop breaking cards
+
+## Notes
+
+- Existing external artworks that were already imported may need one metadata refresh to cache a stable local `cover`.
+- Local fallback images used by gallery cards:
+  - `public/img/works/IMG_6802.JPG`
+  - `public/img/works/IMG_6840.JPG`
+  - `public/img/works/IMG_6895.JPG`
+
+---
+
 # Astro Starter Kit: Blog
 
 ```sh

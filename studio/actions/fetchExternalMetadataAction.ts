@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { DocumentActionComponent } from "sanity";
-import { useDocumentOperation } from "sanity";
+import { useClient, useDocumentOperation } from "sanity";
 
 type OEmbedPayload = {
   title?: string;
@@ -63,6 +63,7 @@ async function fetchFirstWorkingPayload(url: string): Promise<OEmbedPayload | nu
 export const fetchExternalMetadataAction: DocumentActionComponent = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { patch } = useDocumentOperation(props.id, props.type);
+  const client = useClient({ apiVersion: "2024-01-01" });
   const document = props.draft || props.published;
   const externalUrl = typeof document?.externalUrl === "string" ? document.externalUrl.trim() : "";
   const mediaType = document?.mediaType;
@@ -109,6 +110,27 @@ export const fetchExternalMetadataAction: DocumentActionComponent = (props) => {
         }
         if (payload.thumbnail_url) {
           setPatch.externalThumbnail = payload.thumbnail_url;
+          // Persist a stable local copy so expiring social CDN URLs don't break gallery cards later.
+          try {
+            const imageResponse = await fetch(payload.thumbnail_url);
+            if (imageResponse.ok) {
+              const imageBlob = await imageResponse.blob();
+              const filenameBase = (document?.slug as { current?: string } | undefined)?.current || props.id || "external-artwork";
+              const asset = await client.assets.upload("image", imageBlob, {
+                filename: `${filenameBase}-external-thumb.jpg`,
+                contentType: imageBlob.type || "image/jpeg",
+              });
+              setPatch.cover = {
+                _type: "image",
+                asset: {
+                  _type: "reference",
+                  _ref: asset._id,
+                },
+              };
+            }
+          } catch {
+            // Keep externalThumbnail even if local asset caching fails.
+          }
         }
         if (typeof document?.description !== "string" || !document.description.trim()) {
           setPatch.description = payload.title?.trim() || generatedDescription;

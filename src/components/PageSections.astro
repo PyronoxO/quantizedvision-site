@@ -71,6 +71,22 @@ const getExternalDisplayTitle = (title: string) => {
   if (!compact) return "External Post";
   return compact.length > 64 ? `${compact.slice(0, 64).trim()}...` : compact;
 };
+const getArtworkDisplayTitle = (artwork: Artwork) => {
+  const rawTitle = (artwork.title || "").replace(/\s+/g, " ").trim();
+  if (artwork.mediaType === "external") return getExternalDisplayTitle(rawTitle);
+  if (!rawTitle) return "Untitled";
+  return rawTitle.length > 80 ? `${rawTitle.slice(0, 80).trim()}...` : rawTitle;
+};
+const galleryFallbackCovers = ["/img/works/IMG_6802.JPG", "/img/works/IMG_6840.JPG", "/img/works/IMG_6895.JPG"];
+const getFallbackCover = (index: number) => galleryFallbackCovers[index % galleryFallbackCovers.length];
+const getArtworkPrimaryCover = (artwork: Artwork) => artwork.cover || artwork.externalThumbnail || "";
+const getArtworkCoverSrc = (artwork: Artwork, index: number) => getArtworkPrimaryCover(artwork) || getFallbackCover(index);
+const getArtworkHref = (artwork: Artwork) => {
+  if (artwork.mediaType === "external" && artwork.externalUrl) return artwork.externalUrl;
+  if (artwork.slug) return `/gallery/${artwork.slug}`;
+  return "/gallery";
+};
+const isArtworkExternal = (artwork: Artwork) => artwork.mediaType === "external" && Boolean(artwork.externalUrl);
 
 const detectPlatform = (platform: string | undefined, label: string | undefined, url: string) => {
   if (platform) {
@@ -415,25 +431,53 @@ const toModuleStyleVars = (section: any) => {
           </div>
           {section.styleVariant === "cards" ? (
             <div class="grid gap-4 md:grid-cols-3">
-              {selected.map((artwork) => (
-                <a href="/gallery" class:list={["qv-slider-card qv-accent-bl overflow-hidden rounded-xl border", themeSectionClass]}>
+              {selected.map((artwork, index) => (
+                <a
+                  href={getArtworkHref(artwork)}
+                  target={isArtworkExternal(artwork) ? "_blank" : undefined}
+                  rel={isArtworkExternal(artwork) ? "noopener noreferrer" : undefined}
+                  class:list={["qv-slider-card qv-accent-bl overflow-hidden rounded-xl border", themeSectionClass]}
+                >
                   {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
                     <video src={artwork.cover} class="w-full align-middle" muted playsinline preload="metadata" />
                   ) : (
-                    <img src={artwork.externalThumbnail || artwork.cover} alt={artwork.title} class="w-full align-middle" loading="lazy" />
+                    <img
+                      src={getArtworkCoverSrc(artwork, index)}
+                      alt={artwork.title}
+                      class="w-full align-middle"
+                      loading="lazy"
+                      data-external-thumb={artwork.mediaType === "external" ? "true" : undefined}
+                      data-primary-src={getArtworkPrimaryCover(artwork)}
+                      data-fallback-src={getFallbackCover(index)}
+                      onerror={`this.onerror=null;this.src='${galleryFallbackCovers[index % galleryFallbackCovers.length]}'`}
+                    />
                   )}
-                  <div class="p-3"><p class="qv-text font-semibold">{artwork.title}</p></div>
+                  <div class="p-3"><p class="qv-text font-semibold">{getArtworkDisplayTitle(artwork)}</p></div>
                 </a>
               ))}
             </div>
           ) : (
             <div class="columns-1 gap-4 md:columns-2 xl:columns-3">
-              {selected.map((artwork) => (
-                <a href="/gallery" class:list={["qv-archive-item qv-accent-bl mb-4 block break-inside-avoid overflow-hidden rounded-xl border", themeSectionClass]}>
+              {selected.map((artwork, index) => (
+                <a
+                  href={getArtworkHref(artwork)}
+                  target={isArtworkExternal(artwork) ? "_blank" : undefined}
+                  rel={isArtworkExternal(artwork) ? "noopener noreferrer" : undefined}
+                  class:list={["qv-archive-item qv-accent-bl mb-4 block break-inside-avoid overflow-hidden rounded-xl border", themeSectionClass]}
+                >
                   {artwork.mediaType === "video" || /\.(mov|mp4|webm)$/i.test(artwork.cover) ? (
                     <video src={artwork.cover} class="w-full align-middle" muted playsinline preload="metadata" />
                   ) : (
-                    <img src={artwork.externalThumbnail || artwork.cover} alt={artwork.title} class="w-full align-middle" loading="lazy" />
+                    <img
+                      src={getArtworkCoverSrc(artwork, index)}
+                      alt={artwork.title}
+                      class="w-full align-middle"
+                      loading="lazy"
+                      data-external-thumb={artwork.mediaType === "external" ? "true" : undefined}
+                      data-primary-src={getArtworkPrimaryCover(artwork)}
+                      data-fallback-src={getFallbackCover(index)}
+                      onerror={`this.onerror=null;this.src='${galleryFallbackCovers[index % galleryFallbackCovers.length]}'`}
+                    />
                   )}
                 </a>
               ))}
@@ -822,4 +866,24 @@ const toModuleStyleVars = (section: any) => {
   });
   document.querySelectorAll("[data-art-archive]").forEach((node) => setupArchiveModule(node));
   document.querySelectorAll("[data-site-search]").forEach((node) => setupSearchModule(node));
+
+  // If an external thumbnail fails and falls back, retry in background and restore once source recovers.
+  const externalThumbs = Array.from(document.querySelectorAll('img[data-external-thumb="true"]'));
+  const retryExternalThumb = (img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    const primary = img.dataset.primarySrc || "";
+    const fallback = img.dataset.fallbackSrc || "";
+    if (!primary || !fallback || img.src.includes(primary)) return;
+    const probe = new Image();
+    probe.onload = () => {
+      img.src = primary;
+    };
+    probe.src = primary;
+  };
+  if (externalThumbs.length) {
+    window.setInterval(() => externalThumbs.forEach((img) => retryExternalThumb(img)), 30000);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) externalThumbs.forEach((img) => retryExternalThumb(img));
+    });
+  }
 </script>
