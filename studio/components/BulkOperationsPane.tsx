@@ -33,6 +33,12 @@ function toShortTitle(raw?: string): string {
   return compact.length > 64 ? `${compact.slice(0, 64).trim()}...` : compact;
 }
 
+function artworkListTitle(raw?: string, fallbackId?: string): string {
+  const cleaned = toShortTitle(raw);
+  if (cleaned) return cleaned;
+  return fallbackId || "Untitled external artwork";
+}
+
 function resolvePrimaryEndpoints(url: string): string[] {
   const lowered = url.toLowerCase();
   if (lowered.includes("tiktok.com")) {
@@ -292,10 +298,7 @@ export function BulkOperationsPane() {
                   {artworks.map((row) => (
                     <Inline key={row._id} space={2}>
                       <Checkbox checked={selectedArtworkIds.has(row._id)} onChange={() => toggleArtwork(row._id)} />
-                      <Text size={1}>
-                        {row.title || row._id}
-                        {row.cover?.asset?._ref ? " (cached)" : " (no local cover)"}
-                      </Text>
+                      <Text size={1}>{artworkListTitle(row.title, row._id)}</Text>
                     </Inline>
                   ))}
                   {artworks.length === 0 ? <Text size={1}>No external artworks found.</Text> : null}
