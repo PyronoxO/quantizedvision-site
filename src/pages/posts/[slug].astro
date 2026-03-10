@@ -46,6 +46,24 @@ const toParagraphs = (text: string): string[] => {
 };
 
 const bodyLines = toParagraphs(post?.body || "");
+const toSocialImageUrl = (rawUrl?: string): string | undefined => {
+  if (!rawUrl) return undefined;
+  try {
+    const url = new URL(rawUrl);
+    if (url.hostname === "cdn.sanity.io") {
+      url.searchParams.set("w", "1200");
+      url.searchParams.set("h", "630");
+      url.searchParams.set("fit", "crop");
+      url.searchParams.set("fm", "jpg");
+      url.searchParams.set("q", "85");
+      return url.toString();
+    }
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+};
+const socialImage = toSocialImageUrl(post?.cover);
 ---
 
 <SiteLayout
@@ -54,7 +72,7 @@ const bodyLines = toParagraphs(post?.body || "");
   canonicalUrl={postUrl}
   ogTitle={post?.title}
   ogDescription={post?.excerpt}
-  ogImage={post?.cover}
+  ogImage={socialImage}
   ogType="article"
 >
   <section class="dynamic-template mx-auto max-w-5xl space-y-5">
