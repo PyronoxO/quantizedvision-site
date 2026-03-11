@@ -13,6 +13,7 @@ type ArtworkRow = {
 type NoteRow = {
   _id: string;
   title?: string;
+  slug?: string;
   workflowStatus?: string;
   date?: string;
 };
@@ -101,7 +102,7 @@ export function BulkOperationsPane() {
       ),
       client.fetch<NoteRow[]>(
         `*[_type == "note"] | order(date desc)[0...500]{
-          _id,title,workflowStatus,date
+          _id,title,"slug":slug.current,workflowStatus,date
         }`,
       ),
     ]);
@@ -278,6 +279,42 @@ export function BulkOperationsPane() {
     }
   };
 
+  const getPostUrl = (note: NoteRow) => {
+    const base = ((import.meta as any).env?.SANITY_STUDIO_PUBLIC_SITE_URL as string | undefined) || "https://quantizedvision.com";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    return note.slug ? `${cleanBase}/posts/${note.slug}` : "";
+  };
+
+  const shareSingleSelectedPost = async (platform: "x" | "linkedin" | "facebook") => {
+    if (selectedNotes.length !== 1) {
+      log("Select exactly one post for sharing.");
+      return;
+    }
+    const row = selectedNotes[0];
+    const postUrl = getPostUrl(row);
+    if (!postUrl) {
+      log("Selected post has no slug. Cannot build share link.");
+      return;
+    }
+    const shareText = `${(row.title || "Quantized Vision post").trim()} — Quantized Vision`;
+    const shareUrl =
+      platform === "x"
+        ? `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(postUrl)}`
+        : platform === "linkedin"
+          ? `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${shareText} ${postUrl}`)}`
+          : "https://www.facebook.com/";
+    if (platform === "facebook") {
+      try {
+        await navigator.clipboard.writeText(`${shareText} ${postUrl}`);
+        log("Copied Facebook share link for selected post.");
+      } catch {
+        log("Clipboard copy failed for Facebook share link.");
+      }
+    }
+    const opened = window.open(shareUrl, "_blank", "noopener,noreferrer");
+    if (!opened) log(`Popup blocked for ${platform}.`);
+  };
+
   return (
     <Card padding={4}>
       <Stack space={5}>
@@ -345,8 +382,13 @@ export function BulkOperationsPane() {
                 <Button text="Set Published" tone="primary" onClick={() => setSelectedPostStatus("published")} disabled={isBusy || selectedNoteIds.size === 0} />
                 <Button text="Delete Selected" tone="critical" mode="ghost" onClick={deleteSelectedPosts} disabled={isBusy || selectedNoteIds.size === 0} />
               </Inline>
+              <Inline space={2}>
+                <Button text="Share on X" mode="ghost" onClick={() => shareSingleSelectedPost("x")} disabled={isBusy || selectedNoteIds.size !== 1} />
+                <Button text="Share on LinkedIn" mode="ghost" onClick={() => shareSingleSelectedPost("linkedin")} disabled={isBusy || selectedNoteIds.size !== 1} />
+                <Button text="Share on Facebook" mode="ghost" onClick={() => shareSingleSelectedPost("facebook")} disabled={isBusy || selectedNoteIds.size !== 1} />
+              </Inline>
               <Text size={1} muted>
-                Social sharing is handled one-by-one from each published post page.
+                Select exactly one post to share from here.
               </Text>
             </Stack>
           </Card>
