@@ -16,6 +16,7 @@ type NoteRow = {
   slug?: string;
   workflowStatus?: string;
   date?: string;
+  _createdAt?: string;
 };
 
 type OEmbedPayload = {
@@ -88,7 +89,7 @@ export function BulkOperationsPane() {
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [selectedArtworkIds, setSelectedArtworkIds] = useState<Set<string>>(new Set());
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
-  const [noteDateFilter, setNoteDateFilter] = useState<"all" | "today">("all");
+  const [noteDateFilter, setNoteDateFilter] = useState<"all" | "today" | "last24h">("all");
   const [isBusy, setIsBusy] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -103,7 +104,7 @@ export function BulkOperationsPane() {
       ),
       client.fetch<NoteRow[]>(
         `*[_type == "note"] | order(date desc)[0...500]{
-          _id,title,"slug":slug.current,workflowStatus,date
+          _id,title,"slug":slug.current,workflowStatus,date,_createdAt
         }`,
       ),
     ]);
@@ -148,7 +149,19 @@ export function BulkOperationsPane() {
   }, []);
 
   const filteredNotes = useMemo(
-    () => (noteDateFilter === "today" ? notes.filter((row) => row.date === todayKey) : notes),
+    () => {
+      if (noteDateFilter === "today") return notes.filter((row) => row.date === todayKey);
+      if (noteDateFilter === "last24h") {
+        const now = Date.now();
+        return notes.filter((row) => {
+          if (!row._createdAt) return false;
+          const t = new Date(row._createdAt).getTime();
+          if (Number.isNaN(t)) return false;
+          return now - t <= 24 * 60 * 60 * 1000;
+        });
+      }
+      return notes;
+    },
     [noteDateFilter, notes, todayKey],
   );
 
@@ -391,6 +404,18 @@ export function BulkOperationsPane() {
                   mode={noteDateFilter === "today" ? "default" : "ghost"}
                   tone={noteDateFilter === "today" ? "primary" : "default"}
                   onClick={() => setNoteDateFilter("today")}
+                  disabled={isBusy}
+                />
+                <Button
+                  text={`Last 24h (${notes.filter((row) => {
+                    if (!row._createdAt) return false;
+                    const t = new Date(row._createdAt).getTime();
+                    if (Number.isNaN(t)) return false;
+                    return Date.now() - t <= 24 * 60 * 60 * 1000;
+                  }).length})`}
+                  mode={noteDateFilter === "last24h" ? "default" : "ghost"}
+                  tone={noteDateFilter === "last24h" ? "primary" : "default"}
+                  onClick={() => setNoteDateFilter("last24h")}
                   disabled={isBusy}
                 />
               </Inline>
