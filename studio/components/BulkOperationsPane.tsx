@@ -13,6 +13,7 @@ type ArtworkRow = {
 type NoteRow = {
   _id: string;
   title?: string;
+  slug?: string;
   workflowStatus?: string;
   date?: string;
 };
@@ -101,7 +102,7 @@ export function BulkOperationsPane() {
       ),
       client.fetch<NoteRow[]>(
         `*[_type == "note"] | order(date desc)[0...500]{
-          _id,title,workflowStatus,date
+          _id,title,"slug":slug.current,workflowStatus,date
         }`,
       ),
     ]);
@@ -278,6 +279,55 @@ export function BulkOperationsPane() {
     }
   };
 
+  const getPostUrl = (note: NoteRow) => {
+    const base = ((import.meta as any).env?.SANITY_STUDIO_PUBLIC_SITE_URL as string | undefined) || "https://quantizedvision.com";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    return note.slug ? `${cleanBase}/posts/${note.slug}` : "";
+  };
+
+  const shareSelectedPosts = async (platform: "x" | "linkedin" | "facebook") => {
+    if (!selectedNotes.length) return;
+    const rows = selectedNotes.filter((row) => Boolean(row.slug));
+    if (!rows.length) {
+      log("Share skipped: selected posts are missing slugs.");
+      return;
+    }
+
+    if (platform === "facebook") {
+      const lines = rows
+        .map((row) => {
+          const title = (row.title || "Quantized Vision post").trim();
+          const url = getPostUrl(row);
+          return `${title} — Quantized Vision ${url}`;
+        })
+        .filter(Boolean)
+        .join("\n");
+      try {
+        await navigator.clipboard.writeText(lines);
+        log(`Copied ${rows.length} Facebook-ready post link(s) to clipboard.`);
+      } catch {
+        log("Clipboard copy failed for Facebook links.");
+      }
+      window.open("https://www.facebook.com/", "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    let opened = 0;
+    for (const row of rows) {
+      const shareText = `${(row.title || "Quantized Vision post").trim()} — Quantized Vision`;
+      const rawUrl = getPostUrl(row);
+      const title = encodeURIComponent(shareText);
+      const url = encodeURIComponent(rawUrl);
+      const shareUrl =
+        platform === "x"
+          ? `https://x.com/intent/tweet?text=${title}&url=${url}`
+          : `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${shareText} ${rawUrl}`)}`;
+      const win = window.open(shareUrl, "_blank", "noopener,noreferrer");
+      if (win) opened += 1;
+    }
+    log(`Opened ${opened}/${rows.length} ${platform === "x" ? "X" : "LinkedIn"} share window(s).`);
+  };
+
   return (
     <Card padding={4}>
       <Stack space={5}>
@@ -344,6 +394,11 @@ export function BulkOperationsPane() {
                 <Button text="Set Draft" mode="ghost" onClick={() => setSelectedPostStatus("draft")} disabled={isBusy || selectedNoteIds.size === 0} />
                 <Button text="Set Published" tone="primary" onClick={() => setSelectedPostStatus("published")} disabled={isBusy || selectedNoteIds.size === 0} />
                 <Button text="Delete Selected" tone="critical" mode="ghost" onClick={deleteSelectedPosts} disabled={isBusy || selectedNoteIds.size === 0} />
+              </Inline>
+              <Inline space={2}>
+                <Button text="Share Selected on X" mode="ghost" onClick={() => shareSelectedPosts("x")} disabled={isBusy || selectedNoteIds.size === 0} />
+                <Button text="Share Selected on LinkedIn" mode="ghost" onClick={() => shareSelectedPosts("linkedin")} disabled={isBusy || selectedNoteIds.size === 0} />
+                <Button text="Share Selected on Facebook" mode="ghost" onClick={() => shareSelectedPosts("facebook")} disabled={isBusy || selectedNoteIds.size === 0} />
               </Inline>
             </Stack>
           </Card>
