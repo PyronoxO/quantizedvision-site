@@ -14,7 +14,7 @@ type QueueItem = {
   _updatedAt?: string;
 };
 
-const queueQuery = `*[_type == "sourceNewsItem" && (!defined(status) || status != "archived")] | order(_updatedAt desc)[0..199]{
+const queueQuery = `*[_type == "sourceNewsItem" && (!defined(status) || (status != "archived" && status != "exported"))] | order(_updatedAt desc)[0..199]{
   _id,
   sourceId,
   title,
@@ -36,6 +36,21 @@ function formatDate(value?: string) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
   return parsed.toISOString().slice(0, 19).replace("T", " ");
+}
+
+function timelineBucket(value?: string) {
+  if (!value) return "Undated";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "Undated";
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const day = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate()).getTime();
+  const diffDays = Math.floor((today - day) / 86400000);
+  if (diffDays <= 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays <= 7) return "Last 7 Days";
+  if (diffDays <= 30) return "Last 30 Days";
+  return "Older";
 }
 
 export function NewsApprovalPane() {
@@ -73,6 +88,19 @@ export function NewsApprovalPane() {
   }, [items, query]);
 
   const approvedItems = useMemo(() => filtered.filter((item) => item.approvedForExport), [filtered]);
+  const timelineGroups = useMemo(() => {
+    const orderedLabels = ["Today", "Yesterday", "Last 7 Days", "Last 30 Days", "Older", "Undated"];
+    const buckets = new Map<string, QueueItem[]>();
+    for (const item of filtered) {
+      const label = timelineBucket(item._updatedAt);
+      const list = buckets.get(label) || [];
+      list.push(item);
+      buckets.set(label, list);
+    }
+    return orderedLabels
+      .map((label) => ({ label, items: buckets.get(label) || [] }))
+      .filter((group) => group.items.length > 0);
+  }, [filtered]);
 
   const toggleApprove = useCallback(
     async (item: QueueItem, approved: boolean) => {
@@ -171,6 +199,7 @@ export function NewsApprovalPane() {
           set: {
             status: "exported",
             exportedAt: now,
+            approvedForExport: false,
           },
         });
       }
@@ -212,41 +241,53 @@ export function NewsApprovalPane() {
         </Stack>
       </Card>
 
-      {filtered.map((item) => (
-        <Card key={item._id} padding={3} radius={2} border tone="transparent">
-          <Stack space={2}>
-            <Flex align="center" justify="space-between" gap={3}>
-              <Text weight="medium">{item.title || "Untitled"}</Text>
-              <Text size={1} muted>
-                {item.status || "ingested"}
-              </Text>
-            </Flex>
-            <Text size={1} muted>
-              {item.rawExcerpt || ""}
+      {timelineGroups.map((group) => (
+        <Stack key={group.label} space={3}>
+          <Flex align="center" justify="space-between">
+            <Text size={1} weight="semibold" muted>
+              {group.label}
             </Text>
             <Text size={1} muted>
-              {item.sourceName || "Unknown source"} · {formatDate(item._updatedAt)}
+              {group.items.length} item{group.items.length === 1 ? "" : "s"}
             </Text>
-            <Flex gap={2}>
-              {item.approvedForExport ? (
-                <Button text="Approved" tone="positive" mode="default" onClick={() => toggleApprove(item, false)} disabled={submitting} />
-              ) : (
-                <Button text="Approve" tone="primary" mode="default" onClick={() => toggleApprove(item, true)} disabled={submitting} />
-              )}
-              <Button text="Reject" tone="critical" mode="ghost" onClick={() => rejectItem(item)} disabled={submitting} />
-              {item.sourceUrl ? (
-                <Button
-                  text="Open Source"
-                  mode="ghost"
-                  as="a"
-                  href={item.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                />
-              ) : null}
-            </Flex>
-          </Stack>
-        </Card>
+          </Flex>
+          {group.items.map((item) => (
+            <Card key={item._id} padding={3} radius={2} border tone="transparent">
+              <Stack space={2}>
+                <Flex align="center" justify="space-between" gap={3}>
+                  <Text weight="medium">{item.title || "Untitled"}</Text>
+                  <Text size={1} muted>
+                    {item.status || "ingested"}
+                  </Text>
+                </Flex>
+                <Text size={1} muted>
+                  {item.rawExcerpt || ""}
+                </Text>
+                <Text size={1} muted>
+                  {item.sourceName || "Unknown source"} · {formatDate(item._updatedAt)}
+                </Text>
+                <Flex gap={2}>
+                  {item.approvedForExport ? (
+                    <Button text="Approved" tone="positive" mode="default" onClick={() => toggleApprove(item, false)} disabled={submitting} />
+                  ) : (
+                    <Button text="Approve" tone="primary" mode="default" onClick={() => toggleApprove(item, true)} disabled={submitting} />
+                  )}
+                  <Button text="Reject" tone="critical" mode="ghost" onClick={() => rejectItem(item)} disabled={submitting} />
+                  {item.sourceUrl ? (
+                    <Button
+                      text="Open Source"
+                      mode="ghost"
+                      as="a"
+                      href={item.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    />
+                  ) : null}
+                </Flex>
+              </Stack>
+            </Card>
+          ))}
+        </Stack>
       ))}
     </Stack>
   );
