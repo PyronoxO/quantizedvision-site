@@ -333,11 +333,11 @@ export function BulkOperationsPane() {
         ? `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(postUrl)}`
         : platform === "linkedin"
           ? `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${shareText} ${postUrl}`)}`
-          : "https://www.facebook.com/";
+          : `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
     if (platform === "facebook") {
       try {
         await navigator.clipboard.writeText(`${shareText} ${postUrl}`);
-        log("Copied Facebook share link for selected post.");
+        log("Copied Facebook share link for selected post and opened composer.");
       } catch {
         log("Clipboard copy failed for Facebook share link.");
       }
