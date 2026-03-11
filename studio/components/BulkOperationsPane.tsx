@@ -88,6 +88,7 @@ export function BulkOperationsPane() {
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [selectedArtworkIds, setSelectedArtworkIds] = useState<Set<string>>(new Set());
   const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
+  const [noteDateFilter, setNoteDateFilter] = useState<"all" | "today">("all");
   const [isBusy, setIsBusy] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -134,8 +135,25 @@ export function BulkOperationsPane() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    setSelectedNoteIds(new Set());
+  }, [noteDateFilter]);
+
+  const todayKey = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, []);
+
+  const filteredNotes = useMemo(
+    () => (noteDateFilter === "today" ? notes.filter((row) => row.date === todayKey) : notes),
+    [noteDateFilter, notes, todayKey],
+  );
+
   const artworkIds = useMemo(() => artworks.map((row) => row._id), [artworks]);
-  const noteIds = useMemo(() => notes.map((row) => row._id), [notes]);
+  const noteIds = useMemo(() => filteredNotes.map((row) => row._id), [filteredNotes]);
   const selectedArtworks = useMemo(() => artworks.filter((row) => selectedArtworkIds.has(row._id)), [artworks, selectedArtworkIds]);
   const selectedNotes = useMemo(() => notes.filter((row) => selectedNoteIds.has(row._id)), [notes, selectedNoteIds]);
   const artworkMissingCoverIds = useMemo(
@@ -360,13 +378,29 @@ export function BulkOperationsPane() {
           <Card padding={3} border radius={2}>
             <Stack space={3}>
               <Text weight="semibold">Posts</Text>
+              <Inline space={2}>
+                <Button
+                  text={`All (${notes.length})`}
+                  mode={noteDateFilter === "all" ? "default" : "ghost"}
+                  tone={noteDateFilter === "all" ? "primary" : "default"}
+                  onClick={() => setNoteDateFilter("all")}
+                  disabled={isBusy}
+                />
+                <Button
+                  text={`Today (${notes.filter((row) => row.date === todayKey).length})`}
+                  mode={noteDateFilter === "today" ? "default" : "ghost"}
+                  tone={noteDateFilter === "today" ? "primary" : "default"}
+                  onClick={() => setNoteDateFilter("today")}
+                  disabled={isBusy}
+                />
+              </Inline>
               <Inline space={3}>
                 <Checkbox checked={noteIds.length > 0 && selectedNoteIds.size === noteIds.length} onChange={(e) => setAllNotes(e.currentTarget.checked)} />
                 <Text size={1}>Select all posts ({noteIds.length})</Text>
               </Inline>
               <Card padding={2} border radius={2} style={{ maxHeight: 260, overflow: "auto" }}>
                 <Stack space={2}>
-                  {notes.map((row) => (
+                  {filteredNotes.map((row) => (
                     <Inline key={row._id} space={2}>
                       <Checkbox checked={selectedNoteIds.has(row._id)} onChange={() => toggleNote(row._id)} />
                       <Text size={1}>
@@ -374,7 +408,7 @@ export function BulkOperationsPane() {
                       </Text>
                     </Inline>
                   ))}
-                  {notes.length === 0 ? <Text size={1}>No posts found.</Text> : null}
+                  {filteredNotes.length === 0 ? <Text size={1}>No posts found.</Text> : null}
                 </Stack>
               </Card>
               <Inline space={2}>
