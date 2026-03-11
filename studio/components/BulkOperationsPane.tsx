@@ -312,20 +312,26 @@ export function BulkOperationsPane() {
       return;
     }
 
-    let opened = 0;
-    for (const row of rows) {
-      const shareText = `${(row.title || "Quantized Vision post").trim()} — Quantized Vision`;
-      const rawUrl = getPostUrl(row);
-      const title = encodeURIComponent(shareText);
-      const url = encodeURIComponent(rawUrl);
-      const shareUrl =
-        platform === "x"
-          ? `https://x.com/intent/tweet?text=${title}&url=${url}`
-          : `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${shareText} ${rawUrl}`)}`;
-      const win = window.open(shareUrl, "_blank", "noopener,noreferrer");
-      if (win) opened += 1;
+    // Browsers usually block multiple popup windows in one click.
+    // So we open one composer and copy all selected snippets to clipboard.
+    const snippets = rows.map((row) => `${(row.title || "Quantized Vision post").trim()} — Quantized Vision ${getPostUrl(row)}`);
+    try {
+      await navigator.clipboard.writeText(snippets.join("\n\n"));
+      log(`Copied ${rows.length} ${platform === "x" ? "X" : "LinkedIn"} share snippet(s) to clipboard.`);
+    } catch {
+      log("Clipboard copy failed for share snippets.");
     }
-    log(`Opened ${opened}/${rows.length} ${platform === "x" ? "X" : "LinkedIn"} share window(s).`);
+    const first = rows[0];
+    const firstText = `${(first.title || "Quantized Vision post").trim()} — Quantized Vision`;
+    const firstUrl = getPostUrl(first);
+    const shareUrl =
+      platform === "x"
+        ? `https://x.com/intent/tweet?text=${encodeURIComponent(firstText)}&url=${encodeURIComponent(firstUrl)}`
+        : `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${firstText} ${firstUrl}`)}`;
+    const opened = window.open(shareUrl, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      log(`Popup blocked for ${platform}. Use clipboard snippets manually.`);
+    }
   };
 
   return (
