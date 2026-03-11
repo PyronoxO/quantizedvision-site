@@ -1,26 +1,34 @@
 # Project Status Snapshot
 
-Date: 2026-03-09
+Date: 2026-03-11
 
-## Completed in this pass
+## Completed (current production)
 
-- Fixed broken homepage featured gallery cards.
-- Added resilient image loading for gallery cards.
-- Fixed featured gallery card link targets.
-- Upgraded Sanity external metadata action to cache thumbnails as local Sanity assets.
+- Social sharing flow stabilized across post pages:
+  - LinkedIn now opens composer with prefilled text + URL.
+  - X sharing working with live `.com` URLs.
+  - Facebook button now uses reliable `copy link + open Facebook` flow.
+- Domain migration completed:
+  - `quantizedvision.com` and `www.quantizedvision.com` are active on Cloudflare Pages.
+  - `PUBLIC_SITE_URL` in Pages production set to `https://quantizedvision.com`.
+- Social preview reliability improved:
+  - Post OG images now use fixed-size Sanity transforms (`1200x630`, JPG) for crawler compatibility.
+- Featured gallery resiliency remains in place:
+  - Local cover caching in Sanity for external artwork sources.
+  - Frontend fallback + retry behavior for unstable external thumbnails.
+- All recent patches pushed to GitHub `main` and deployed to Cloudflare Pages production.
 
-## Technical Root Cause
+## Known behavior
 
-- Most featured gallery entries are `mediaType: "external"` and were relying on remote social thumbnail URLs.
-- Those URLs are short-lived or intermittently inaccessible, so images disappeared and cards looked broken.
+- Facebook’s native popup share flow can hang on some desktop sessions; direct paste in Facebook composer works consistently.
+- Meta/LinkedIn preview updates can lag due to crawler cache and may require manual re-scrape.
 
-## Permanent Mitigation
+## Next Phase (recommended)
 
-- On metadata fetch, Studio now uploads a local Sanity image asset and stores it in `artwork.cover`.
-- Frontend now prefers `cover` first, then external URL, then local static fallback.
-- Frontend retries external images and restores them automatically when reachable.
-
-## Follow-up (recommended)
-
-- Run `Fetch metadata` once on legacy external artwork docs that still do not have local `cover`.
-- After that, new breakages from expiring remote thumbnails should be minimal.
+- Harden social metadata:
+  - Add explicit `og:image:type` and cache-busting strategy for critical post updates.
+- Editorial pipeline hardening:
+  - Final QA pass on CSV rewrite/import workflow using 10+ article batch.
+  - Add post-import validation checklist in Studio docs.
+- Ops hardening:
+  - Add a short runbook for domain/DNS/social-debugger procedures.
