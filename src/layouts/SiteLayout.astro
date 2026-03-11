@@ -10,6 +10,10 @@ interface Props {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  ogImageType?: string;
+  ogImageWidth?: string | number;
+  ogImageHeight?: string | number;
+  ogImageAlt?: string;
   ogType?: "website" | "article";
   noIndex?: boolean;
 }
@@ -21,6 +25,10 @@ const {
   ogTitle,
   ogDescription,
   ogImage,
+  ogImageType,
+  ogImageWidth,
+  ogImageHeight,
+  ogImageAlt,
   ogType = "website",
   noIndex = false,
 } = Astro.props;
@@ -117,6 +125,10 @@ const navItems = mappedNav.length ? mappedNav : fallbackNavItems.map((item) => (
 
 const currentPath = Astro.url.pathname;
 const isHomeRoute = currentPath === "/";
+const resolvedCanonicalUrl = canonicalUrl ? new URL(canonicalUrl, Astro.url.origin).toString() : undefined;
+const resolvedOgImage = ogImage ? new URL(ogImage, Astro.url.origin).toString() : undefined;
+const resolvedOgImageWidth = ogImageWidth ? String(ogImageWidth) : undefined;
+const resolvedOgImageHeight = ogImageHeight ? String(ogImageHeight) : undefined;
 ---
 
 <!doctype html>
@@ -126,20 +138,24 @@ const isHomeRoute = currentPath === "/";
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     {noIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
-    {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+    {resolvedCanonicalUrl ? <link rel="canonical" href={resolvedCanonicalUrl} /> : null}
     <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Quantized Vision" />
     <meta property="og:title" content={ogTitle || title} />
     <meta property="og:description" content={ogDescription || description} />
-    {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
-    {ogImage ? <meta property="og:image" content={ogImage} /> : null}
-    {ogImage ? <meta property="og:image:secure_url" content={ogImage} /> : null}
-    {ogImage ? <meta property="og:image:width" content="1344" /> : null}
-    {ogImage ? <meta property="og:image:height" content="768" /> : null}
-    {ogImage ? <meta property="og:image:alt" content={ogTitle || title} /> : null}
+    {resolvedCanonicalUrl ? <meta property="og:url" content={resolvedCanonicalUrl} /> : null}
+    {resolvedOgImage ? <meta property="og:image" content={resolvedOgImage} /> : null}
+    {resolvedOgImage ? <meta property="og:image:url" content={resolvedOgImage} /> : null}
+    {resolvedOgImage ? <meta property="og:image:secure_url" content={resolvedOgImage} /> : null}
+    {ogImageType ? <meta property="og:image:type" content={ogImageType} /> : null}
+    {resolvedOgImageWidth ? <meta property="og:image:width" content={resolvedOgImageWidth} /> : null}
+    {resolvedOgImageHeight ? <meta property="og:image:height" content={resolvedOgImageHeight} /> : null}
+    {resolvedOgImage ? <meta property="og:image:alt" content={ogImageAlt || ogTitle || title} /> : null}
     <meta name="twitter:card" content="summary_large_image" />
+    {resolvedCanonicalUrl ? <meta name="twitter:url" content={resolvedCanonicalUrl} /> : null}
     <meta name="twitter:title" content={ogTitle || title} />
     <meta name="twitter:description" content={ogDescription || description} />
-    {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
+    {resolvedOgImage ? <meta name="twitter:image" content={resolvedOgImage} /> : null}
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

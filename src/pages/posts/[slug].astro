@@ -55,6 +55,7 @@ const toSocialImageUrl = (rawUrl?: string): string | undefined => {
       url.searchParams.set("fit", "crop");
       url.searchParams.set("fm", "jpg");
       url.searchParams.set("q", "85");
+      url.searchParams.delete("auto");
       return url.toString();
     }
     return rawUrl;
@@ -72,6 +73,10 @@ const socialImage = toSocialImageUrl(post?.cover);
   ogTitle={post?.title}
   ogDescription={post?.excerpt}
   ogImage={socialImage}
+  ogImageType="image/jpeg"
+  ogImageWidth="1200"
+  ogImageHeight="630"
+  ogImageAlt={post?.title}
   ogType="article"
 >
   <section class="dynamic-template mx-auto max-w-5xl space-y-5">
