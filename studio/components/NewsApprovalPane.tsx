@@ -59,6 +59,7 @@ export function NewsApprovalPane() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [query, setQuery] = useState("");
+  const [view, setView] = useState<"all" | "focus" | "approved" | "rejected">("all");
   const [message, setMessage] = useState<string>("");
 
   const load = useCallback(async () => {
@@ -80,12 +81,18 @@ export function NewsApprovalPane() {
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term) return items;
-    return items.filter((item) => {
+    const byView = items.filter((item) => {
+      if (view === "approved") return Boolean(item.approvedForExport);
+      if (view === "rejected") return item.status === "rejected";
+      if (view === "focus") return !item.approvedForExport && item.status !== "rejected";
+      return true;
+    });
+    if (!term) return byView;
+    return byView.filter((item) => {
       const haystack = `${item.title || ""} ${item.rawExcerpt || ""} ${item.sourceName || ""} ${item.sourceUrl || ""}`.toLowerCase();
       return haystack.includes(term);
     });
-  }, [items, query]);
+  }, [items, query, view]);
 
   const approvedItems = useMemo(() => filtered.filter((item) => item.approvedForExport), [filtered]);
   const timelineGroups = useMemo(() => {
@@ -234,6 +241,36 @@ export function NewsApprovalPane() {
             onChange={(event) => setQuery(event.currentTarget.value)}
             placeholder="Filter by headline, excerpt, source..."
           />
+          <Flex gap={2} wrap="wrap">
+            <Button
+              text={`All (${items.length})`}
+              mode={view === "all" ? "default" : "ghost"}
+              tone={view === "all" ? "primary" : "default"}
+              onClick={() => setView("all")}
+              disabled={submitting}
+            />
+            <Button
+              text={`Focus (${items.filter((item) => !item.approvedForExport && item.status !== "rejected").length})`}
+              mode={view === "focus" ? "default" : "ghost"}
+              tone={view === "focus" ? "primary" : "default"}
+              onClick={() => setView("focus")}
+              disabled={submitting}
+            />
+            <Button
+              text={`Approved (${items.filter((item) => item.approvedForExport).length})`}
+              mode={view === "approved" ? "default" : "ghost"}
+              tone={view === "approved" ? "primary" : "default"}
+              onClick={() => setView("approved")}
+              disabled={submitting}
+            />
+            <Button
+              text={`Rejected (${items.filter((item) => item.status === "rejected").length})`}
+              mode={view === "rejected" ? "default" : "ghost"}
+              tone={view === "rejected" ? "primary" : "default"}
+              onClick={() => setView("rejected")}
+              disabled={submitting}
+            />
+          </Flex>
           <Text size={1} muted>
             Visible: {filtered.length} | Approved in filter: {approvedItems.length}
           </Text>
