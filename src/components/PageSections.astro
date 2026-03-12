@@ -327,7 +327,7 @@ const toModuleStyleVars = (section: any) => {
           {selected.length === 0 ? <p class="text-xs uppercase tracking-[0.11em] text-[#9cb0df]">Showing temporary dummy projects for layout preview.</p> : null}
           <div class="grid gap-4 md:grid-cols-2">
             {previewProjects.map((project, index) => (
-              <article class="qv-card qv-slider-card space-y-2 rounded-xl p-5">
+              <article class="qv-card qv-slider-card qv-project-card space-y-2 overflow-hidden rounded-xl p-5">
                 <p class="text-xs uppercase tracking-[0.11em] qv-muted">Case {(index + 1).toString().padStart(2, "0")}</p>
                 <h3 class="font-black uppercase tracking-[0.03em] qv-text">{project.title}</h3>
                 <p class="text-xs uppercase tracking-[0.1em] qv-muted">{project.date}</p>

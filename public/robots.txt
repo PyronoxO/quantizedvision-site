@@ -2,5 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://quantizedvision.com/sitemap-index.xml
+Sitemap: https://quantizedvision.com/sitemap.xml
 Sitemap: https://quantizedvision.com/rss.xml
-

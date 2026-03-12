@@ -496,6 +496,18 @@ h6 { font-size: var(--qv-h6-size, clamp(0.88rem, 1.2vw, 1.04rem)) !important; }
     0 0 20px rgb(255 63 100 / 0.12);
 }
 
+.qv-project-card:hover,
+.qv-project-card:focus-within {
+  /* Keep project card hover contained so it does not bleed into neighboring cards */
+  box-shadow:
+    0 12px 24px rgb(0 0 0 / 0.28),
+    0 0 10px rgb(0 217 255 / 0.18);
+}
+
+.qv-project-card::after {
+  inset: 0;
+}
+
 .qv-archive-item:hover::after,
 .qv-archive-item:focus-within::after,
 .qv-slider-card:hover::after,

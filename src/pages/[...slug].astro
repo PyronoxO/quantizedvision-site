@@ -27,8 +27,6 @@ const themePresets: Record<HomeThemeVariant, { section: string }> = {
 
 const theme = page ? themePresets[page.themeVariant] || themePresets["crimson-ice"] : themePresets["crimson-ice"];
 const pageSections = page && Array.isArray(page.sections) ? page.sections.filter(Boolean) : [];
-const pageTitle = isRedirect ? "Redirecting..." : page?.seo?.metaTitle || `${page?.title} | Quantized Vision`;
-const pageDescription = isRedirect ? "Redirecting to the updated location." : page?.seo?.metaDescription || page?.hero?.body || "Quantized Vision";
 const hasHeroContent = Boolean(
   page?.hero?.body?.trim() ||
   page?.hero?.eyebrow?.trim() ||
@@ -37,17 +35,58 @@ const hasHeroContent = Boolean(
 );
 const showPageHero = hasHeroContent || pageSections.length === 0;
 const isAboutPage = page?.slug === "about";
+const publicSiteUrl = (import.meta.env.PUBLIC_SITE_URL || "").trim() || Astro.url.origin;
+const pageUrl = new URL(pathname, publicSiteUrl).toString();
+const pageName = page?.title || rawSlug || "Page";
+const defaultMetaTitle = isRedirect ? "Redirecting..." : `${pageName} | Quantized Vision`;
+const defaultMetaDescription = isRedirect
+  ? "Redirecting to the updated location."
+  : page?.hero?.body?.trim() || `Explore ${pageName} at Quantized Vision.`;
+const breadcrumbSchema = !isRedirect && page
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: `${publicSiteUrl.replace(/\/+$/, "")}/`,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: page.title,
+          item: pageUrl,
+        },
+      ],
+    }
+  : null;
+const listSectionTypes = new Set(pageSections.map((section) => section?._type).filter(Boolean));
+const hasArchiveList = listSectionTypes.has("postArchiveSection") || listSectionTypes.has("artworkArchiveSection") || listSectionTypes.has("projectArchiveSection");
+const collectionSchema = !isRedirect && page && hasArchiveList
+  ? {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: page.title,
+      url: pageUrl,
+      description: defaultMetaDescription,
+      isPartOf: `${publicSiteUrl.replace(/\/+$/, "")}/`,
+    }
+  : null;
 ---
 
 <SiteLayout
-  title={pageTitle}
-  description={pageDescription}
-  canonicalUrl={isRedirect ? undefined : page?.seo?.canonicalUrl}
+  title={page?.seo?.metaTitle || defaultMetaTitle}
+  description={page?.seo?.metaDescription || defaultMetaDescription}
+  canonicalUrl={isRedirect ? undefined : page?.seo?.canonicalUrl || pageUrl}
   ogTitle={isRedirect ? undefined : page?.seo?.ogTitle}
   ogDescription={isRedirect ? undefined : page?.seo?.ogDescription}
   ogImage={isRedirect ? undefined : page?.seo?.ogImage}
   noIndex={isRedirect ? true : Boolean(page?.seo?.noIndex)}
 >
+  {breadcrumbSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /> : null}
+  {collectionSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(collectionSchema)} /> : null}
   {isRedirect ? (
     <section class="dynamic-template space-y-4">
       <article class="rounded-2xl border border-[#202d47] bg-[#0a1224] p-6 md:p-9">

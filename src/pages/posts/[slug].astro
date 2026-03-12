@@ -22,6 +22,17 @@ const publicSiteUrl = (import.meta.env.PUBLIC_SITE_URL || "").trim();
 const shareBase = publicSiteUrl || Astro.url.origin;
 const postUrl = post ? new URL(`/posts/${post.slug}`, shareBase).toString() : Astro.url.href;
 const shareText = post ? `${post.title} — Quantized Vision` : "Quantized Vision post";
+const relatedPosts = post
+  ? posts
+      .filter((item) => item.slug !== post.slug)
+      .slice(0, 3)
+      .map((item) => ({
+        title: item.title,
+        slug: item.slug,
+        date: item.date,
+        excerpt: item.excerpt,
+      }))
+  : [];
 const encodedUrl = encodeURIComponent(postUrl);
 const encodedText = encodeURIComponent(shareText);
 const linkedInShareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(
@@ -88,6 +99,32 @@ const articleSchema = post
       mainEntityOfPage: postUrl,
     }
   : null;
+const breadcrumbSchema = post
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: `${shareBase.replace(/\/+$/, "")}/`,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Posts",
+          item: `${shareBase.replace(/\/+$/, "")}/posts`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: post.title,
+          item: postUrl,
+        },
+      ],
+    }
+  : null;
 ---
 
 <SiteLayout
@@ -104,6 +141,7 @@ const articleSchema = post
   ogType="article"
 >
   {articleSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} /> : null}
+  {breadcrumbSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /> : null}
   <section class="dynamic-template mx-auto max-w-5xl space-y-5">
     {!post ? (
       <div class="qv-card rounded-xl p-5 qv-muted">Post not found.</div>
@@ -195,6 +233,21 @@ const articleSchema = post
             </div>
           </footer>
         </article>
+        {relatedPosts.length ? (
+          <section class="qv-panel rounded-2xl p-5 md:p-8">
+            <p class="text-xs uppercase tracking-[0.12em] qv-muted">Continue Reading</p>
+            <h2 class="mt-2 text-2xl font-extrabold tracking-tight qv-text md:text-3xl">More from Quantized Vision</h2>
+            <div class="mt-5 grid gap-4 md:grid-cols-3">
+              {relatedPosts.map((item) => (
+                <a href={`/posts/${item.slug}`} class="qv-card rounded-xl p-4 transition hover:-translate-y-0.5">
+                  <p class="text-xs uppercase tracking-[0.11em] qv-muted">{item.date}</p>
+                  <h3 class="mt-2 text-base font-bold leading-tight qv-text">{item.title}</h3>
+                  <p class="mt-2 text-sm qv-muted">{item.excerpt}</p>
+                </a>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </>
     )}
   </section>

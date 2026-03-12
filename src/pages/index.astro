@@ -63,6 +63,17 @@ const heroSliderInterval = Math.min(15000, Math.max(1200, Number(page.hero.autop
 const heroTransitionMs = Math.min(3000, Math.max(150, Number(page.hero.transitionMs) || 850));
 const heroShowArrows = heroSliderEnabled && Boolean(page.hero.showArrows ?? true);
 const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
+const publicSiteUrl = (import.meta.env.PUBLIC_SITE_URL || "").trim() || Astro.url.origin;
+const homeUrl = `${publicSiteUrl.replace(/\/+$/, "")}/`;
+const homeSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: pageTitle,
+  url: homeUrl,
+  description: pageDescription,
+  inLanguage: "en",
+  primaryImageOfPage: heroMedia[0]?.src || undefined,
+};
 ---
 
 <SiteLayout
@@ -74,6 +85,7 @@ const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
   ogImage={page.seo?.ogImage}
   noIndex={Boolean(page.seo?.noIndex)}
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(homeSchema)} />
   <section class="dynamic-template space-y-8">
     {preview ? (
       <div class="rounded-xl border border-[#3b4f77] bg-[#111e3a] px-4 py-2 text-xs uppercase tracking-[0.1em] qv-text">
