@@ -128,6 +128,8 @@ const navItems = mappedNav.length ? mappedNav : fallbackNavItems.map((item) => (
 const currentPath = Astro.url.pathname;
 const isHomeRoute = currentPath === "/";
 const publicSiteUrl = ((import.meta as any).env?.PUBLIC_SITE_URL as string | undefined)?.trim() || Astro.url.origin;
+const googleSiteVerification = ((import.meta as any).env?.PUBLIC_GOOGLE_SITE_VERIFICATION as string | undefined)?.trim();
+const bingSiteVerification = ((import.meta as any).env?.PUBLIC_BING_SITE_VERIFICATION as string | undefined)?.trim();
 const resolvedCanonicalUrl = canonicalUrl
   ? new URL(canonicalUrl, Astro.url.origin).toString()
   : new URL(Astro.url.pathname, publicSiteUrl).toString();
@@ -163,6 +165,8 @@ const websiteSchema = {
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="author" content={author} />
+    {googleSiteVerification ? <meta name="google-site-verification" content={googleSiteVerification} /> : null}
+    {bingSiteVerification ? <meta name="msvalidate.01" content={bingSiteVerification} /> : null}
     {noIndex ? (
       <meta name="robots" content="noindex,nofollow" />
     ) : (
