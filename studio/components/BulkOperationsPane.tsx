@@ -333,14 +333,15 @@ export function BulkOperationsPane() {
         ? `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(postUrl)}`
         : platform === "linkedin"
           ? `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${shareText} ${postUrl}`)}`
-          : `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
+          : "";
     if (platform === "facebook") {
       try {
         await navigator.clipboard.writeText(`${shareText} ${postUrl}`);
-        log("Copied Facebook share link for selected post and opened composer.");
+        log("Copied Facebook share link for selected post.");
       } catch {
         log("Clipboard copy failed for Facebook share link.");
       }
+      return;
     }
     const opened = window.open(shareUrl, "_blank", "noopener,noreferrer");
     if (!opened) log(`Popup blocked for ${platform}.`);
@@ -444,7 +445,7 @@ export function BulkOperationsPane() {
               <Inline space={2}>
                 <Button text="Share on X" mode="ghost" onClick={() => shareSingleSelectedPost("x")} disabled={isBusy || selectedNoteIds.size !== 1} />
                 <Button text="Share on LinkedIn" mode="ghost" onClick={() => shareSingleSelectedPost("linkedin")} disabled={isBusy || selectedNoteIds.size !== 1} />
-                <Button text="Share on Facebook" mode="ghost" onClick={() => shareSingleSelectedPost("facebook")} disabled={isBusy || selectedNoteIds.size !== 1} />
+                <Button text="Copy for Facebook" mode="ghost" onClick={() => shareSingleSelectedPost("facebook")} disabled={isBusy || selectedNoteIds.size !== 1} />
               </Inline>
               <Text size={1} muted>
                 Select exactly one post to share from here.
