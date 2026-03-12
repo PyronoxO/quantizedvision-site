@@ -129,7 +129,9 @@ const currentPath = Astro.url.pathname;
 const isHomeRoute = currentPath === "/";
 const publicSiteUrl = ((import.meta as any).env?.PUBLIC_SITE_URL as string | undefined)?.trim() || Astro.url.origin;
 const googleSiteVerification = ((import.meta as any).env?.PUBLIC_GOOGLE_SITE_VERIFICATION as string | undefined)?.trim();
-const bingSiteVerification = ((import.meta as any).env?.PUBLIC_BING_SITE_VERIFICATION as string | undefined)?.trim();
+const bingSiteVerification =
+  ((import.meta as any).env?.PUBLIC_BING_SITE_VERIFICATION as string | undefined)?.trim() ||
+  "00E07BE594A3775B023980AFA00D66DB";
 const resolvedCanonicalUrl = canonicalUrl
   ? new URL(canonicalUrl, Astro.url.origin).toString()
   : new URL(Astro.url.pathname, publicSiteUrl).toString();
