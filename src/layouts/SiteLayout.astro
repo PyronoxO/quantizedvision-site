@@ -125,10 +125,33 @@ const navItems = mappedNav.length ? mappedNav : fallbackNavItems.map((item) => (
 
 const currentPath = Astro.url.pathname;
 const isHomeRoute = currentPath === "/";
-const resolvedCanonicalUrl = canonicalUrl ? new URL(canonicalUrl, Astro.url.origin).toString() : undefined;
+const publicSiteUrl = ((import.meta as any).env?.PUBLIC_SITE_URL as string | undefined)?.trim() || Astro.url.origin;
+const resolvedCanonicalUrl = canonicalUrl
+  ? new URL(canonicalUrl, Astro.url.origin).toString()
+  : new URL(Astro.url.pathname, publicSiteUrl).toString();
 const resolvedOgImage = ogImage ? new URL(ogImage, Astro.url.origin).toString() : undefined;
 const resolvedOgImageWidth = ogImageWidth ? String(ogImageWidth) : undefined;
 const resolvedOgImageHeight = ogImageHeight ? String(ogImageHeight) : undefined;
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Quantized Vision",
+  url: publicSiteUrl,
+  logo: `${publicSiteUrl.replace(/\/+$/, "")}/img/works/logo-watermark.png`,
+  sameAs: [
+    "https://www.tiktok.com/@quantizedvision",
+    "https://www.instagram.com/quantizedvision",
+    "https://www.youtube.com/@quantizedvision",
+    "https://www.facebook.com/quantizedvision",
+  ],
+};
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Quantized Vision",
+  url: publicSiteUrl,
+  inLanguage: "en",
+};
 ---
 
 <!doctype html>
@@ -137,8 +160,13 @@ const resolvedOgImageHeight = ogImageHeight ? String(ogImageHeight) : undefined;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
-    {noIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
+    {noIndex ? (
+      <meta name="robots" content="noindex,nofollow" />
+    ) : (
+      <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    )}
     {resolvedCanonicalUrl ? <link rel="canonical" href={resolvedCanonicalUrl} /> : null}
+    <link rel="alternate" type="application/rss+xml" title="Quantized Vision Posts RSS" href={`${publicSiteUrl.replace(/\/+$/, "")}/rss.xml`} />
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="Quantized Vision" />
     <meta property="og:title" content={ogTitle || title} />
@@ -156,6 +184,9 @@ const resolvedOgImageHeight = ogImageHeight ? String(ogImageHeight) : undefined;
     <meta name="twitter:title" content={ogTitle || title} />
     <meta name="twitter:description" content={ogDescription || description} />
     {resolvedOgImage ? <meta name="twitter:image" content={resolvedOgImage} /> : null}
+    <meta name="theme-color" content="#0a1224" />
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

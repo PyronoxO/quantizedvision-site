@@ -64,6 +64,30 @@ const toSocialImageUrl = (rawUrl?: string): string | undefined => {
   }
 };
 const socialImage = toSocialImageUrl(post?.cover);
+const articleSchema = post
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      description: post.excerpt,
+      image: socialImage ? [socialImage] : undefined,
+      datePublished: post.date,
+      dateModified: post.date,
+      author: {
+        "@type": "Organization",
+        name: post.author || "Quantized Vision",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Quantized Vision",
+        logo: {
+          "@type": "ImageObject",
+          url: `${shareBase.replace(/\/+$/, "")}/img/works/logo-watermark.png`,
+        },
+      },
+      mainEntityOfPage: postUrl,
+    }
+  : null;
 ---
 
 <SiteLayout
@@ -79,6 +103,7 @@ const socialImage = toSocialImageUrl(post?.cover);
   ogImageAlt={post?.title}
   ogType="article"
 >
+  {articleSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} /> : null}
   <section class="dynamic-template mx-auto max-w-5xl space-y-5">
     {!post ? (
       <div class="qv-card rounded-xl p-5 qv-muted">Post not found.</div>

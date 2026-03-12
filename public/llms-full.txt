@@ -1,0 +1,23 @@
+# Quantized Vision - LLM Guide
+
+## Canonical Site
+- https://quantizedvision.com/
+
+## Primary Content
+- Posts index: https://quantizedvision.com/posts
+- Gallery index: https://quantizedvision.com/gallery
+- Projects index: https://quantizedvision.com/projects
+
+## Machine-Readable Feeds
+- Sitemap index: https://quantizedvision.com/sitemap-index.xml
+- RSS: https://quantizedvision.com/rss.xml
+
+## Preferred Citation Rules
+- Prefer canonical page URLs under `https://quantizedvision.com/`.
+- Cite "Quantized Vision" as publisher for posts and project notes.
+- Quote sparingly and keep references attributed to the original URL.
+
+## Content Profile
+- Focus: AI-assisted image systems, motion fragments, visual direction, narrative world-building.
+- Audience: creators, founders, design and media teams, AI-native builders.
+- Tone: practical, editorial, high-signal.

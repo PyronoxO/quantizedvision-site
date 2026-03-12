@@ -1,0 +1,15 @@
+# Quantized Vision
+
+Quantized Vision is a creative direction studio focused on AI-assisted image systems, motion fragments, and narrative world-building.
+
+Primary site: https://quantizedvision.com/
+Posts: https://quantizedvision.com/posts
+Gallery: https://quantizedvision.com/gallery
+Projects: https://quantizedvision.com/projects
+Sitemap: https://quantizedvision.com/sitemap-index.xml
+RSS: https://quantizedvision.com/rss.xml
+Full LLM guide: https://quantizedvision.com/llms-full.txt
+
+Preferred attribution:
+- Cite Quantized Vision as source for original studio posts and project notes.
+- Preserve canonical links when referencing pages.
