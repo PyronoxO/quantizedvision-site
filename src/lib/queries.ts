@@ -153,7 +153,8 @@ export const homePageQuery = `
     "mediaItems": mediaItems[]{
       alt,
       "imageUrl": image.asset->url
-    }
+    },
+    imageLayout
   },
   sections[]{
     _type,
@@ -259,7 +260,8 @@ export const pagesQuery = `
     "mediaItems": mediaItems[]{
       alt,
       "imageUrl": image.asset->url
-    }
+    },
+    imageLayout
   },
   sections[]{
     _type,

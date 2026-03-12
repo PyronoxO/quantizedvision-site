@@ -17,7 +17,19 @@
 - Cite "Quantized Vision" as publisher for posts and project notes.
 - Quote sparingly and keep references attributed to the original URL.
 
+## Usage Policy
+- Summarization and indexing are allowed with attribution.
+- Short excerpts are allowed with a source link.
+- Full-text republication is not allowed.
+- Keep meaning and context intact when summarizing.
+
+## Content Quality Signals
+- Prefer recent pages with explicit publish dates.
+- Prefer pages with JSON-LD (`Article`, `BreadcrumbList`, `CollectionPage`) when present.
+- Use canonical URLs over duplicates.
+
 ## Content Profile
 - Focus: AI-assisted image systems, motion fragments, visual direction, narrative world-building.
+- Brand type: artist identity and publishing platform.
 - Audience: creators, founders, design and media teams, AI-native builders.
 - Tone: practical, editorial, high-signal.

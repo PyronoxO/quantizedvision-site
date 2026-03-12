@@ -99,6 +99,13 @@ const articleSchema = post
       mainEntityOfPage: postUrl,
     }
   : null;
+const toIso = (value?: string) => {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  return parsed.toISOString();
+};
+const publishedIso = toIso(post?.date);
 const breadcrumbSchema = post
   ? {
       "@context": "https://schema.org",
@@ -130,6 +137,7 @@ const breadcrumbSchema = post
 <SiteLayout
   title={`${post?.title || "Post"} | Quantized Vision`}
   description={post?.excerpt || "Quantized Vision post."}
+  author={post?.author || "Quantized Vision"}
   canonicalUrl={postUrl}
   ogTitle={post?.title}
   ogDescription={post?.excerpt}
@@ -142,6 +150,10 @@ const breadcrumbSchema = post
 >
   {articleSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} /> : null}
   {breadcrumbSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /> : null}
+  {post ? <meta slot="head" property="article:published_time" content={publishedIso} /> : null}
+  {post ? <meta slot="head" property="article:modified_time" content={publishedIso} /> : null}
+  {post ? <meta slot="head" property="article:author" content={post.author || "Quantized Vision"} /> : null}
+  {post ? <meta slot="head" name="news_keywords" content={post.tags.join(", ")} /> : null}
   <section class="dynamic-template mx-auto max-w-5xl space-y-5">
     {!post ? (
       <div class="qv-card rounded-xl p-5 qv-muted">Post not found.</div>

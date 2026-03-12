@@ -63,6 +63,7 @@ const heroSliderInterval = Math.min(15000, Math.max(1200, Number(page.hero.autop
 const heroTransitionMs = Math.min(3000, Math.max(150, Number(page.hero.transitionMs) || 850));
 const heroShowArrows = heroSliderEnabled && Boolean(page.hero.showArrows ?? true);
 const heroShowDots = heroSliderEnabled && Boolean(page.hero.showDots ?? true);
+const heroImageEdgeToEdge = page.hero.imageLayout === "edge-to-edge";
 const publicSiteUrl = (import.meta.env.PUBLIC_SITE_URL || "").trim() || Astro.url.origin;
 const homeUrl = `${publicSiteUrl.replace(/\/+$/, "")}/`;
 const homeSchema = {
@@ -120,7 +121,12 @@ const homeSchema = {
           <div class="absolute inset-0 scale-110 bg-[#00d9ff]/20 blur-[120px]"></div>
           <div class="absolute inset-0 scale-105 bg-[#ff6b35]/15 blur-[100px] [transform:translateX(20%)]"></div>
           <div
-            class="relative aspect-[4/5] overflow-hidden rounded-2xl border-2 border-[#00d9ff]/30 bg-[#16213e] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_50px_rgba(0,217,255,0.2)]"
+            class:list={[
+              "relative aspect-[4/5] overflow-hidden bg-[#16213e]",
+              heroImageEdgeToEdge
+                ? "border-y border-[#00d9ff]/30 shadow-[0_20px_60px_rgba(0,0,0,0.35),0_0_24px_rgba(0,217,255,0.15)]"
+                : "rounded-2xl border-2 border-[#00d9ff]/30 shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_50px_rgba(0,217,255,0.2)]",
+            ]}
             data-hero-slider
             data-slider-enabled={heroSliderEnabled ? "true" : "false"}
             data-slider-autoplay={heroSliderAutoplay ? "true" : "false"}
@@ -142,8 +148,12 @@ const homeSchema = {
             ))}
             <div class="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.4)]"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d1a]/60 via-transparent to-transparent"></div>
-            <div class="absolute left-0 top-0 h-20 w-20 rounded-tl-2xl border-l-2 border-t-2 border-[#00d9ff]"></div>
-            <div class="absolute bottom-0 right-0 h-20 w-20 rounded-br-2xl border-b-2 border-r-2 border-[#ff6b35]"></div>
+            {!heroImageEdgeToEdge ? (
+              <>
+                <div class="absolute left-0 top-0 h-20 w-20 rounded-tl-2xl border-l-2 border-t-2 border-[#00d9ff]"></div>
+                <div class="absolute bottom-0 right-0 h-20 w-20 rounded-br-2xl border-b-2 border-r-2 border-[#ff6b35]"></div>
+              </>
+            ) : null}
             {heroSliderEnabled ? (
               <>
                 {heroShowArrows ? (

@@ -69,6 +69,7 @@ export interface HomeHero {
   secondaryLabel?: string;
   secondaryUrl?: string;
   mediaItems?: { imageUrl?: string; alt?: string }[];
+  imageLayout?: "boxed" | "edge-to-edge";
   enableSlider?: boolean;
   autoplay?: boolean;
   autoplayMs?: number;

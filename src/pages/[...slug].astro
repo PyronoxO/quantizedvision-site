@@ -35,6 +35,17 @@ const hasHeroContent = Boolean(
 );
 const showPageHero = hasHeroContent || pageSections.length === 0;
 const isAboutPage = page?.slug === "about";
+const heroParagraphs = (page?.hero?.body || "")
+  .split(/\n{2,}/)
+  .map((line) => line.trim())
+  .filter(Boolean);
+const pageHeroMedia = (page?.hero?.mediaItems || [])
+  .map((item) => ({
+    src: item.imageUrl?.trim() || "",
+    alt: item.alt?.trim() || page?.title || "Page hero image",
+  }))
+  .filter((item) => Boolean(item.src));
+const heroImageEdgeToEdge = page?.hero?.imageLayout === "edge-to-edge";
 const publicSiteUrl = (import.meta.env.PUBLIC_SITE_URL || "").trim() || Astro.url.origin;
 const pageUrl = new URL(pathname, publicSiteUrl).toString();
 const pageName = page?.title || rawSlug || "Page";
@@ -74,6 +85,21 @@ const collectionSchema = !isRedirect && page && hasArchiveList
       isPartOf: `${publicSiteUrl.replace(/\/+$/, "")}/`,
     }
   : null;
+const aboutPageSchema = !isRedirect && page && isAboutPage
+  ? {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: page.title,
+      url: pageUrl,
+      description: defaultMetaDescription,
+      isPartOf: `${publicSiteUrl.replace(/\/+$/, "")}/`,
+      about: {
+        "@type": "Organization",
+        name: "Quantized Vision",
+        url: `${publicSiteUrl.replace(/\/+$/, "")}/`,
+      },
+    }
+  : null;
 ---
 
 <SiteLayout
@@ -87,6 +113,7 @@ const collectionSchema = !isRedirect && page && hasArchiveList
 >
   {breadcrumbSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /> : null}
   {collectionSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(collectionSchema)} /> : null}
+  {aboutPageSchema ? <script slot="head" type="application/ld+json" set:html={JSON.stringify(aboutPageSchema)} /> : null}
   {isRedirect ? (
     <section class="dynamic-template space-y-4">
       <article class="rounded-2xl border border-[#202d47] bg-[#0a1224] p-6 md:p-9">
@@ -114,7 +141,13 @@ const collectionSchema = !isRedirect && page && hasArchiveList
           </p>
         ) : null}
         <h1 class="qv-page-hero-title mt-4 max-w-5xl font-black uppercase">{page.hero?.title || page.title}</h1>
-        {page.hero?.body ? <p class="mt-5 max-w-3xl qv-hero-body qv-muted">{page.hero.body}</p> : null}
+        {heroParagraphs.length ? (
+          <div class:list={["mt-5 space-y-4", isAboutPage ? "max-w-4xl" : "max-w-3xl"]}>
+            {heroParagraphs.map((line) => (
+              <p class="qv-hero-body qv-muted">{line}</p>
+            ))}
+          </div>
+        ) : null}
         <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           {page.hero?.primaryLabel && page.hero?.primaryUrl ? (
             <a href={page.hero.primaryUrl} class="qv-btn-accent qv-page-hero-btn rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-[0.12em]">
@@ -127,6 +160,21 @@ const collectionSchema = !isRedirect && page && hasArchiveList
             </a>
           ) : null}
         </div>
+        {pageHeroMedia.length ? (
+          <div class:list={["mt-7", heroImageEdgeToEdge ? "qv-hero-media-edge" : ""]}>
+            <img
+              src={pageHeroMedia[0].src}
+              alt={pageHeroMedia[0].alt}
+              class:list={[
+                "w-full object-cover",
+                heroImageEdgeToEdge
+                  ? "max-h-[78vh] border-y border-[rgb(0_217_255_/_0.22)]"
+                  : "max-h-[520px] rounded-2xl border border-[rgb(0_217_255_/_0.28)]",
+              ]}
+              loading="eager"
+            />
+          </div>
+        ) : null}
       </article>
     ) : null}
 

@@ -183,7 +183,13 @@ export async function getPosts(options: FetchOptions = {}): Promise<Post[]> {
     return result
       .map(mapPost)
       .filter((post) => (post.workflowStatus || "published") === "published")
-      .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+      .sort((a, b) => {
+        const featuredDelta = Number(Boolean(b.featured)) - Number(Boolean(a.featured));
+        if (featuredDelta !== 0) return featuredDelta;
+        const at = new Date(a.date).getTime() || 0;
+        const bt = new Date(b.date).getTime() || 0;
+        return bt - at;
+      });
   } catch {
     return [];
   }

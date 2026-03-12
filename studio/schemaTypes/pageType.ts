@@ -86,6 +86,18 @@ export const pageType = defineType({
           ],
         }),
         defineField({
+          name: "imageLayout",
+          title: "Hero Image Layout",
+          type: "string",
+          initialValue: "boxed",
+          options: {
+            list: [
+              { title: "Boxed", value: "boxed" },
+              { title: "Edge to Edge", value: "edge-to-edge" },
+            ],
+          },
+        }),
+        defineField({
           name: "enableSlider",
           title: "Enable Hero Slider",
           type: "boolean",

@@ -6,6 +6,7 @@ import type { HomeDesignSettings, NavigationItem } from "../types/content";
 interface Props {
   title: string;
   description?: string;
+  author?: string;
   canonicalUrl?: string;
   ogTitle?: string;
   ogDescription?: string;
@@ -31,6 +32,7 @@ const {
   ogImageAlt,
   ogType = "website",
   noIndex = false,
+  author = "Quantized Vision",
 } = Astro.props;
 const preview = Astro.url.searchParams.get("preview") === "1";
 const siteSettings = await getSiteSettings({ preview });
@@ -160,6 +162,7 @@ const websiteSchema = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <meta name="author" content={author} />
     {noIndex ? (
       <meta name="robots" content="noindex,nofollow" />
     ) : (
@@ -289,7 +292,7 @@ const websiteSchema = {
         isHomeRoute ? "mt-0" : "mx-auto mt-10 max-w-[1440px] border-t border-[rgb(0_217_255_/_0.16)]",
       ]}
     >
-      <p>© {new Date().getFullYear()} Quantized Vision</p>
+      <p>© {new Date().getFullYear()} Quantized Vision. All rights reserved.</p>
     </footer>
     <script is:inline>
       (() => {
