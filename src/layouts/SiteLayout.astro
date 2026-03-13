@@ -207,7 +207,10 @@ const websiteSchema = {
     {plausibleDomain ? (
       <>
         <script defer data-domain={plausibleDomain} src={plausibleScriptSrc}></script>
-        <script is:inline>{`window.qvTrack = function(eventName, props){ if (typeof window.plausible === "function") { window.plausible(eventName, props ? { props } : undefined); } };`}</script>
+        <script
+          is:inline
+          set:html={`window.qvTrack = function(eventName, props){ if (typeof window.plausible === "function") { window.plausible(eventName, props ? { props } : undefined); } };`}
+        />
       </>
     ) : null}
     <title>{title}</title>
