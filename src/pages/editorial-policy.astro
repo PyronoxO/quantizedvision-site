@@ -1,0 +1,24 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+const title = "Editorial Policy | Quantized Vision";
+const description =
+  "Editorial policy for Quantized Vision: originality, attribution, factual integrity, and AI-assisted publishing standards.";
+---
+
+<SiteLayout title={title} description={description} canonicalUrl="https://quantizedvision.com/editorial-policy">
+  <section class="dynamic-template mx-auto max-w-4xl space-y-5">
+    <article class="qv-panel rounded-2xl p-6 md:p-8">
+      <h1 class="text-3xl font-extrabold tracking-tight qv-text md:text-4xl">Editorial Policy</h1>
+      <p class="mt-4 qv-muted">
+        Quantized Vision publishes original editorial work focused on AI-assisted visuals, creative tooling, and digital media narratives.
+      </p>
+      <ul class="mt-4 space-y-2 qv-muted">
+        <li>Originality first: published posts are rewritten and edited for unique voice and clarity.</li>
+        <li>Attribution required: source links are preserved for external reporting references.</li>
+        <li>Factual integrity: avoid fabricated claims, metrics, quotes, or unverifiable details.</li>
+        <li>Human direction: AI supports production speed, while editorial judgment remains human-led.</li>
+      </ul>
+    </article>
+  </section>
+</SiteLayout>

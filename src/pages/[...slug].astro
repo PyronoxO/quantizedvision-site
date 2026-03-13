@@ -53,6 +53,19 @@ const defaultMetaTitle = isRedirect ? "Redirecting..." : `${pageName} | Quantize
 const defaultMetaDescription = isRedirect
   ? "Redirecting to the updated location."
   : page?.hero?.body?.trim() || `Explore ${pageName} at Quantized Vision.`;
+const legacyStudioPattern = /creative direction studio/i;
+const resolvedMetaDescription = (() => {
+  const seoDescription = (page?.seo?.metaDescription || "").trim();
+  if (!seoDescription) return defaultMetaDescription;
+  if (!legacyStudioPattern.test(seoDescription)) return seoDescription;
+  return heroParagraphs[0] || defaultMetaDescription;
+})();
+const resolvedOgDescription = (() => {
+  const seoOgDescription = (page?.seo?.ogDescription || "").trim();
+  if (!seoOgDescription) return undefined;
+  if (!legacyStudioPattern.test(seoOgDescription)) return seoOgDescription;
+  return heroParagraphs[0] || defaultMetaDescription;
+})();
 const breadcrumbSchema = !isRedirect && page
   ? {
       "@context": "https://schema.org",
@@ -81,7 +94,7 @@ const collectionSchema = !isRedirect && page && hasArchiveList
       "@type": "CollectionPage",
       name: page.title,
       url: pageUrl,
-      description: defaultMetaDescription,
+      description: resolvedMetaDescription,
       isPartOf: `${publicSiteUrl.replace(/\/+$/, "")}/`,
     }
   : null;
@@ -91,7 +104,7 @@ const aboutPageSchema = !isRedirect && page && isAboutPage
       "@type": "AboutPage",
       name: page.title,
       url: pageUrl,
-      description: defaultMetaDescription,
+      description: resolvedMetaDescription,
       isPartOf: `${publicSiteUrl.replace(/\/+$/, "")}/`,
       about: {
         "@type": "Organization",
@@ -104,10 +117,10 @@ const aboutPageSchema = !isRedirect && page && isAboutPage
 
 <SiteLayout
   title={page?.seo?.metaTitle || defaultMetaTitle}
-  description={page?.seo?.metaDescription || defaultMetaDescription}
+  description={resolvedMetaDescription}
   canonicalUrl={isRedirect ? undefined : page?.seo?.canonicalUrl || pageUrl}
   ogTitle={isRedirect ? undefined : page?.seo?.ogTitle}
-  ogDescription={isRedirect ? undefined : page?.seo?.ogDescription}
+  ogDescription={isRedirect ? undefined : resolvedOgDescription}
   ogImage={isRedirect ? undefined : page?.seo?.ogImage}
   noIndex={isRedirect ? true : Boolean(page?.seo?.noIndex)}
 >

@@ -273,6 +273,10 @@ const breadcrumbSchema = post
       try {
         await navigator.clipboard.writeText(url);
       } catch {}
+      const label = el.getAttribute("aria-label") || "share";
+      if (typeof window.qvTrack === "function") {
+        window.qvTrack("social_share_click", { network: label, post: window.location.pathname });
+      }
     });
   });
 </script>

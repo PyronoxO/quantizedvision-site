@@ -9,6 +9,7 @@ Projects: https://quantizedvision.com/projects
 Sitemap: https://quantizedvision.com/sitemap-index.xml
 RSS: https://quantizedvision.com/rss.xml
 Full LLM guide: https://quantizedvision.com/llms-full.txt
+Editorial policy: https://quantizedvision.com/editorial-policy
 
 Preferred attribution:
 - Cite Quantized Vision as source for original posts and project notes.

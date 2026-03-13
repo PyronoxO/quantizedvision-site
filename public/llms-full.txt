@@ -7,6 +7,7 @@
 - Posts index: https://quantizedvision.com/posts
 - Gallery index: https://quantizedvision.com/gallery
 - Projects index: https://quantizedvision.com/projects
+- Editorial policy: https://quantizedvision.com/editorial-policy
 
 ## Machine-Readable Feeds
 - Sitemap index: https://quantizedvision.com/sitemap-index.xml

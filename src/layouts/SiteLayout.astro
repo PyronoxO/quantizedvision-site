@@ -132,6 +132,10 @@ const googleSiteVerification = ((import.meta as any).env?.PUBLIC_GOOGLE_SITE_VER
 const bingSiteVerification =
   ((import.meta as any).env?.PUBLIC_BING_SITE_VERIFICATION as string | undefined)?.trim() ||
   "00E07BE594A3775B023980AFA00D66DB";
+const plausibleDomain = ((import.meta as any).env?.PUBLIC_PLAUSIBLE_DOMAIN as string | undefined)?.trim();
+const plausibleScriptSrc =
+  ((import.meta as any).env?.PUBLIC_PLAUSIBLE_SCRIPT_SRC as string | undefined)?.trim() ||
+  "https://plausible.io/js/script.js";
 const resolvedCanonicalUrl = canonicalUrl
   ? new URL(canonicalUrl, Astro.url.origin).toString()
   : new URL(Astro.url.pathname, publicSiteUrl).toString();
@@ -196,6 +200,12 @@ const websiteSchema = {
     <meta name="theme-color" content="#0a1224" />
     <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    {plausibleDomain ? (
+      <>
+        <script defer data-domain={plausibleDomain} src={plausibleScriptSrc}></script>
+        <script is:inline>{`window.qvTrack = function(eventName, props){ if (typeof window.plausible === "function") { window.plausible(eventName, props ? { props } : undefined); } };`}</script>
+      </>
+    ) : null}
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -367,5 +377,27 @@ const websiteSchema = {
         });
       })();
     </script>
+    {plausibleDomain ? (
+      <script is:inline>{`
+        document.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const link = target.closest("a[href]");
+          if (!(link instanceof HTMLAnchorElement)) return;
+          const href = link.href;
+          if (!href) return;
+          let external = false;
+          try {
+            external = new URL(href).origin !== window.location.origin;
+          } catch {
+            return;
+          }
+          if (!external) return;
+          if (typeof window.qvTrack === "function") {
+            window.qvTrack("outbound_link_click", { href });
+          }
+        });
+      `}</script>
+    ) : null}
   </body>
 </html>
