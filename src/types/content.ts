@@ -95,7 +95,7 @@ export interface HomeSocialSection {
   heading?: string;
   alignment?: "left" | "center" | "right";
   iconSize?: "sm" | "md" | "lg" | "xl";
-  links: { platform?: "instagram" | "tiktok" | "youtube" | "facebook" | "x" | "linkedin" | "link"; label?: string; url: string }[];
+  links: { platform?: "instagram" | "tiktok" | "youtube" | "facebook" | "x" | "linkedin" | "soundcloud" | "link"; label?: string; url: string }[];
 }
 
 export interface HomePostsSection {
@@ -288,6 +288,17 @@ export interface Post {
   workflowStatus?: "draft" | "review" | "published";
   readTimeMinutes?: number;
   author?: string;
+}
+
+export interface MusicTrack {
+  title: string;
+  artist?: string;
+  releaseDate?: string;
+  soundcloudUrl: string;
+  embedUrl?: string;
+  cover?: string;
+  description?: string;
+  featured?: boolean;
 }
 
 export interface RedirectRule {

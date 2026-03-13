@@ -50,6 +50,7 @@ export const structure: StructureResolver = (S) =>
             .items([
               S.documentTypeListItem("artwork").title("Artwork"),
               S.documentTypeListItem("project").title("Projects"),
+              S.documentTypeListItem("musicTrack").title("Music Tracks"),
               S.listItem()
                 .title("Posts")
                 .child(
@@ -128,6 +129,7 @@ export const structure: StructureResolver = (S) =>
           ![
             "artwork",
             "project",
+            "musicTrack",
             "note",
             "sourceNewsItem",
             "collection",

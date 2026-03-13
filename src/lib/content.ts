@@ -8,6 +8,7 @@ import type {
   PageConfig,
   Post,
   Project,
+  MusicTrack,
   RedirectRule,
   SiteSettings,
 } from "../types/content";
@@ -15,6 +16,7 @@ import {
   globalModulesQuery,
   homePageQuery,
   noteQuery,
+  musicTrackQuery,
   pageSlugsQuery,
   pagesQuery,
   projectQuery,
@@ -62,6 +64,10 @@ type SanityPost = Omit<Post, "tags"> & {
   tagRefs?: RefItem[];
   cover?: SanityMedia;
   authorRef?: { name?: string };
+};
+
+type SanityMusicTrack = Omit<MusicTrack, "cover"> & {
+  cover?: SanityMedia;
 };
 
 type FetchOptions = {
@@ -144,6 +150,19 @@ function mapPost(item: SanityPost): Post {
   };
 }
 
+function mapMusicTrack(item: SanityMusicTrack): MusicTrack {
+  return {
+    title: item.title,
+    artist: item.artist,
+    releaseDate: item.releaseDate,
+    soundcloudUrl: item.soundcloudUrl,
+    embedUrl: item.embedUrl,
+    description: item.description,
+    featured: Boolean(item.featured),
+    cover: sanityImageUrl(item.cover) || item.cover?.asset?.url || undefined,
+  };
+}
+
 export async function getArtworks(options: FetchOptions = {}): Promise<Artwork[]> {
   const client = getSanityClient(Boolean(options.preview));
   if (!isSanityConfigured() || !client) {
@@ -190,6 +209,20 @@ export async function getPosts(options: FetchOptions = {}): Promise<Post[]> {
         const bt = new Date(b.date).getTime() || 0;
         return bt - at;
       });
+  } catch {
+    return [];
+  }
+}
+
+export async function getMusicTracks(options: FetchOptions = {}): Promise<MusicTrack[]> {
+  const client = getSanityClient(Boolean(options.preview));
+  if (!isSanityConfigured() || !client) {
+    return [];
+  }
+
+  try {
+    const result = await client.fetch<SanityMusicTrack[]>(musicTrackQuery);
+    return result.map(mapMusicTrack).filter((track) => Boolean(track.soundcloudUrl));
   } catch {
     return [];
   }

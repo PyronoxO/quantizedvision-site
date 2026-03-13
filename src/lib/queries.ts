@@ -70,6 +70,24 @@ export const noteQuery = `
 }
 `;
 
+export const musicTrackQuery = `
+*[_type == "musicTrack"] | order(featured desc, releaseDate desc, _createdAt desc) {
+  title,
+  artist,
+  releaseDate,
+  soundcloudUrl,
+  embedUrl,
+  description,
+  featured,
+  "cover": cover{
+    asset->{
+      _id,
+      url
+    }
+  }
+}
+`;
+
 export const siteSettingsQuery = `
 *[_type == "siteSettings" && _id == "siteSettings"][0]{
   design{

@@ -180,6 +180,7 @@ export const homePageType = defineType({
                           { title: "Facebook", value: "facebook" },
                           { title: "X (Twitter)", value: "x" },
                           { title: "LinkedIn", value: "linkedin" },
+                          { title: "SoundCloud", value: "soundcloud" },
                           { title: "Generic Link", value: "link" },
                         ],
                       },

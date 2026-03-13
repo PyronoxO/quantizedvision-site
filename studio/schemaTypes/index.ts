@@ -10,6 +10,7 @@ import { siteSettingsType } from "./siteSettingsType";
 import { pageType } from "./pageType";
 import { globalModuleType } from "./globalModuleType";
 import { sourceNewsItemType } from "./sourceNewsItemType";
+import { musicTrackType } from "./musicTrackType";
 
 export const schemaTypes = [
   artworkType,
@@ -23,5 +24,6 @@ export const schemaTypes = [
   pageType,
   globalModuleType,
   sourceNewsItemType,
+  musicTrackType,
   siteSettingsType,
 ];
