@@ -385,26 +385,29 @@ const websiteSchema = {
       })();
     </script>
     {plausibleDomain ? (
-      <script is:inline>{`
-        document.addEventListener("click", (event) => {
-          const target = event.target;
-          if (!(target instanceof Element)) return;
-          const link = target.closest("a[href]");
-          if (!(link instanceof HTMLAnchorElement)) return;
-          const href = link.href;
-          if (!href) return;
-          let external = false;
-          try {
-            external = new URL(href).origin !== window.location.origin;
-          } catch {
-            return;
-          }
-          if (!external) return;
-          if (typeof window.qvTrack === "function") {
-            window.qvTrack("outbound_link_click", { href });
-          }
-        });
-      `}</script>
+      <script
+        is:inline
+        set:html={`
+          document.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            const link = target.closest("a[href]");
+            if (!(link instanceof HTMLAnchorElement)) return;
+            const href = link.href;
+            if (!href) return;
+            let external = false;
+            try {
+              external = new URL(href).origin !== window.location.origin;
+            } catch {
+              return;
+            }
+            if (!external) return;
+            if (typeof window.qvTrack === "function") {
+              window.qvTrack("outbound_link_click", { href });
+            }
+          });
+        `}
+      />
     ) : null}
   </body>
 </html>
