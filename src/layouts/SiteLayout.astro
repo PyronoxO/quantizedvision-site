@@ -132,7 +132,11 @@ const googleSiteVerification = ((import.meta as any).env?.PUBLIC_GOOGLE_SITE_VER
 const bingSiteVerification =
   ((import.meta as any).env?.PUBLIC_BING_SITE_VERIFICATION as string | undefined)?.trim() ||
   "00E07BE594A3775B023980AFA00D66DB";
-const plausibleDomain = ((import.meta as any).env?.PUBLIC_PLAUSIBLE_DOMAIN as string | undefined)?.trim();
+const host = Astro.url.hostname.toLowerCase();
+const isPrimaryProdHost = host === "quantizedvision.com" || host === "www.quantizedvision.com";
+const plausibleDomain =
+  ((import.meta as any).env?.PUBLIC_PLAUSIBLE_DOMAIN as string | undefined)?.trim() ||
+  (isPrimaryProdHost ? "quantizedvision.com" : undefined);
 const plausibleScriptSrc =
   ((import.meta as any).env?.PUBLIC_PLAUSIBLE_SCRIPT_SRC as string | undefined)?.trim() ||
   "https://plausible.io/js/script.js";
