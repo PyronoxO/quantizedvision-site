@@ -1,5 +1,6 @@
 import React from "react";
 import { defineField, defineType } from "sanity";
+import { CoverFromBulkPhotosInput } from "../components/CoverFromBulkPhotosInput";
 
 function toCompactSlug(input: string, max = 56): string {
   return input
@@ -92,6 +93,7 @@ export const artworkType = defineType({
       title: "Cover Media",
       type: "image",
       options: { hotspot: true },
+      components: { input: CoverFromBulkPhotosInput },
       hidden: ({ parent }) => parent?.mediaType === "external",
       group: "main",
     }),
