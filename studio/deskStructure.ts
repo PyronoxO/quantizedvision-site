@@ -27,6 +27,9 @@ export const structure: StructureResolver = (S) =>
                 .title("All Pages")
                 .child(S.documentTypeList("page").title("All Pages")),
               S.listItem()
+                .title("Music Production Content")
+                .child(S.documentTypeList("musicTrack").title("Music Production Content")),
+              S.listItem()
                 .title("Global Modules")
                 .child(S.documentTypeList("globalModule").title("Global Modules")),
             ])
@@ -50,7 +53,7 @@ export const structure: StructureResolver = (S) =>
             .items([
               S.documentTypeListItem("artwork").title("Artwork"),
               S.documentTypeListItem("project").title("Projects"),
-              S.documentTypeListItem("musicTrack").title("Music Tracks"),
+              S.documentTypeListItem("musicTrack").title("Music Production"),
               S.listItem()
                 .title("Posts")
                 .child(

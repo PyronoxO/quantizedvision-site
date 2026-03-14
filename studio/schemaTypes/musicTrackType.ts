@@ -2,7 +2,7 @@ import { defineField, defineType } from "sanity";
 
 export const musicTrackType = defineType({
   name: "musicTrack",
-  title: "Music Track",
+  title: "Music Production Track",
   type: "document",
   fields: [
     defineField({
@@ -26,6 +26,7 @@ export const musicTrackType = defineType({
       name: "soundcloudUrl",
       title: "SoundCloud URL",
       type: "url",
+      description: "Paste track URL, then click document action: Fetch SoundCloud metadata.",
       validation: (rule) =>
         rule.required().uri({
           scheme: ["https"],
@@ -52,8 +53,9 @@ export const musicTrackType = defineType({
     }),
     defineField({
       name: "featured",
-      title: "Featured",
+      title: "Pin to top",
       type: "boolean",
+      description: "If enabled, this track appears first on /music.",
       initialValue: false,
     }),
   ],
@@ -66,7 +68,7 @@ export const musicTrackType = defineType({
     prepare(selection) {
       return {
         title: selection.title || "Untitled track",
-        subtitle: selection.subtitle || "Music Track",
+        subtitle: selection.subtitle || "Music Production Track",
         media: selection.media,
       };
     },

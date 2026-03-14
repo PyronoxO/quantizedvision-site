@@ -404,6 +404,7 @@ async function ensureSiteSettings() {
   const navOrder = [
     { label: 'Home', slug: 'home', fallbackUrl: '/' },
     { label: 'Gallery', slug: 'gallery', fallbackUrl: '/gallery' },
+    { label: 'Music Production', slug: 'music', fallbackUrl: '/music' },
     { label: 'Projects', slug: 'projects', fallbackUrl: '/projects' },
     { label: 'Posts', slug: 'posts', fallbackUrl: '/posts' },
     { label: 'About', slug: 'about', fallbackUrl: '/about' },

@@ -5,9 +5,26 @@ import { getMusicTracks } from "../lib/content";
 const tracks = await getMusicTracks();
 
 const toEmbedUrl = (trackUrl: string, override?: string) => {
-  if (override?.trim()) return override.trim();
-  const encoded = encodeURIComponent(trackUrl);
-  return `https://w.soundcloud.com/player/?url=${encoded}&color=%2300bcd4&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false`;
+  const base = override?.trim() || `https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}`;
+  try {
+    const url = new URL(base);
+    if (!url.hostname.includes("soundcloud.com")) throw new Error("not_soundcloud");
+    if (!url.searchParams.get("url")) {
+      url.searchParams.set("url", trackUrl);
+    }
+    url.searchParams.set("color", "#000000");
+    url.searchParams.set("auto_play", "false");
+    url.searchParams.set("hide_related", "false");
+    url.searchParams.set("show_comments", "false");
+    url.searchParams.set("show_user", "true");
+    url.searchParams.set("show_reposts", "false");
+    url.searchParams.set("show_teaser", "true");
+    url.searchParams.set("visual", "true");
+    return url.toString();
+  } catch {
+    const encoded = encodeURIComponent(trackUrl);
+    return `https://w.soundcloud.com/player/?url=${encoded}&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
+  }
 };
 
 const pageUrl = "https://quantizedvision.com/music";
@@ -30,7 +47,7 @@ const playlistSchema = {
 ---
 
 <SiteLayout
-  title="Music | Quantized Vision"
+  title="Music Production | Quantized Vision"
   description="Stream Quantized Vision music releases from SoundCloud, including latest tracks and featured drops."
   canonicalUrl={pageUrl}
 >
@@ -40,8 +57,7 @@ const playlistSchema = {
 
   <section class="dynamic-template mx-auto max-w-6xl space-y-6">
     <header class="qv-panel rounded-2xl p-6 md:p-8">
-      <p class="qv-chip inline-flex items-center rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em]">SoundCloud Releases</p>
-      <h1 class="mt-4 text-3xl font-extrabold uppercase tracking-[0.03em] md:text-5xl">Music</h1>
+      <h1 class="text-3xl font-extrabold uppercase tracking-[0.03em] md:text-5xl">Music Production</h1>
       <p class="mt-4 max-w-3xl qv-muted">
         Official Quantized Vision tracks. Stream directly, open on SoundCloud, and follow new drops.
       </p>
@@ -61,7 +77,7 @@ const playlistSchema = {
             <iframe
               title={`SoundCloud player for ${track.title}`}
               width="100%"
-              height="166"
+              height="320"
               scrolling="no"
               frameborder="no"
               allow="autoplay"

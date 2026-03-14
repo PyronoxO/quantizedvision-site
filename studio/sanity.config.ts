@@ -4,6 +4,7 @@ import { schemaTypes } from "./schemaTypes";
 import { structure } from "./deskStructure";
 import { fetchExternalMetadataAction } from "./actions/fetchExternalMetadataAction";
 import { refreshNoteCoverAction } from "./actions/refreshNoteCoverAction";
+import { fetchSoundCloudMetadataAction } from "./actions/fetchSoundCloudMetadataAction";
 
 export default defineConfig({
   name: "default",
@@ -18,6 +19,9 @@ export default defineConfig({
       }
       if (context.schemaType === "note") {
         return [...prev, refreshNoteCoverAction];
+      }
+      if (context.schemaType === "musicTrack") {
+        return [...prev, fetchSoundCloudMetadataAction];
       }
       return prev;
     },
