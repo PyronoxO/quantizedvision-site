@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { DocumentActionComponent } from "sanity";
-import { useClient, useDocumentOperation } from "sanity";
+import { useClient } from "sanity";
 
 type OEmbedPayload = {
   title?: string;
@@ -117,7 +117,6 @@ async function fetchSoundCloudPageMeta(url: string): Promise<SoundCloudPageMeta>
 
 export const fetchSoundCloudMetadataAction: DocumentActionComponent = (props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { patch } = useDocumentOperation(props.id, props.type);
   const client = useClient({ apiVersion: API_VERSION });
   const document = props.draft || props.published;
   const rawUrl = typeof document?.soundcloudUrl === "string" ? document.soundcloudUrl.trim() : "";
@@ -178,7 +177,12 @@ export const fetchSoundCloudMetadataAction: DocumentActionComponent = (props) =>
           }
         }
 
-        patch.execute([{ set: setPatch }]);
+        if (Object.keys(setPatch).length === 0) {
+          window.alert("No metadata values were returned for this URL.");
+          return;
+        }
+
+        await client.patch(props.id).set(setPatch).commit({ autoGenerateArrayKeys: true });
         if (!payload) {
           window.alert("Limited metadata returned by SoundCloud. Embed URL was set and title/artist were inferred from URL.");
         }
